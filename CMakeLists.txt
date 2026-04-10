@@ -3,7 +3,7 @@
 project ("RayTracer")
 
 add_executable(RayTracer src/main.cpp)
-
+target_include_directories(RayTracer PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
 set_property(TARGET RayTracer PROPERTY CXX_STANDARD 20)
 
 ##############################################################################
@@ -23,7 +23,11 @@ include(GoogleTest)
 
 ##############################################################################
 
-add_executable(RayTracerTest tests/test.cpp)
+add_executable(RayTracerTest
+        tests/math/point3_tests.cpp
+        tests/math/vector3_tests.cpp
+)
+target_include_directories(RayTracerTest PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
 
 set_property(TARGET RayTracerTest PROPERTY CXX_STANDARD 20)
 target_link_libraries(RayTracerTest PRIVATE GTest::gtest_main)

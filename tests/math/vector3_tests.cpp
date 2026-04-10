@@ -75,6 +75,28 @@ TEST(Vector3, NormalizeSmallVector) {
   EXPECT_FLOAT_EQ(z, 0.8f);
 }
 
+TEST(Vector3, DotProduct) {
+  EXPECT_FLOAT_EQ(Dot(Vector3{1.0f, 2.0f, 3.0f}, Vector3{2.0f, 3.0f, 4.0f}),
+                  20.0f);
+  EXPECT_FLOAT_EQ(Dot(Vector3{1.0f, 0.0f, 0.0f}, Vector3{0.0f, 1.0f, 2.0f}),
+                  0.0f);
+}
+
+TEST(Vector3, CrossProduct) {
+  auto constexpr a = Vector3{1.0f, 2.0f, 3.0f};
+  auto constexpr b = Vector3{2.0f, 3.0f, 4.0f};
+
+  auto const [ab_x, ab_y, ab_z] = Cross(a, b);
+  EXPECT_FLOAT_EQ(ab_x, -1.0);
+  EXPECT_FLOAT_EQ(ab_y, 2.0);
+  EXPECT_FLOAT_EQ(ab_z, -1.0);
+
+  auto const [ba_x, ba_y, ba_z] = Cross(b, a);
+  EXPECT_FLOAT_EQ(ba_x, 1.0);
+  EXPECT_FLOAT_EQ(ba_y, -2.0);
+  EXPECT_FLOAT_EQ(ba_z, 1.0);
+}
+
 TEST(Vector3, NearComparison) {
   ASSERT_TRUE(Near(Vector3{1.0f, 0.0f, 0.0f}, Vector3{0.9999999f, 0.0f, 0.0f}));
   ASSERT_FALSE(Near(Vector3{1.0f, 0.0f, 0.0f}, Vector3{1.1f, 0.0f, 0.0f}));

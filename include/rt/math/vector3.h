@@ -34,6 +34,11 @@ inline Vector3 operator*(float const scalar, Vector3 const& rhs) {
   return rhs * scalar;
 }
 
+/**
+ * @brief Calculate the L2 or Euclidean norm of a vector
+ * @param vec Input vector
+ * @return The Euclidean distance of the vector
+ */
 inline float Length(Vector3 const& vec) {
   return std::sqrt(vec.x * vec.x + vec.y * vec.y + vec.z * vec.z);
 }
@@ -43,9 +48,39 @@ inline Vector3 Normalize(Vector3 const& vec) {
   return Vector3{vec.x / length, vec.y / length, vec.z / length};
 }
 
+/**
+ * @brief Calculate the dot product of two vectors.
+ * @param vec1 First vector
+ * @param vec2 Second vector
+ * @return The dot product of vec1 and vec2.
+ */
+inline float Dot(Vector3 const& vec1, Vector3 const& vec2) {
+  return vec1.x * vec2.x + vec1.y * vec2.y + vec1.z * vec2.z;
+}
+
+/**
+ * @brief Calculate the cross product of two vectors
+ * @param vec1 First vector
+ * @param vec2 Second vector
+ * @return A third vector perpendicular to the input two vectors
+ */
+inline Vector3 Cross(Vector3 const& vec1, Vector3 const& vec2) {
+  return Vector3{vec1.y * vec2.z - vec1.z * vec2.y,
+                 vec1.z * vec2.x - vec1.x * vec2.z,
+                 vec1.x * vec2.y - vec1.y * vec2.x};
+}
+
+/**
+ * @brief Check if two vectors are considered nearly equal.
+ * @param vec1 First vector to compare
+ * @param vec2 Second vector to compare
+ * @param epsilon Distance needed to be considered equal, default 1e-6f
+ * @return
+ */
 inline bool Near(Vector3 const& vec1, Vector3 const& vec2,
                  float const epsilon = 1e-6f) {
-  return Length(vec1 - vec2) <= epsilon;
+  auto const diff = vec1 - vec2;
+  return Dot(diff, diff) <= epsilon * epsilon;
 }
 
 }  // namespace rt

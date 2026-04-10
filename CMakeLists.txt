@@ -24,6 +24,7 @@ include(GoogleTest)
 ##############################################################################
 
 add_executable(RayTracerTest
+        tests/graphics/colour_rgb_tests.cpp
         tests/math/point3_tests.cpp
         tests/math/vector3_tests.cpp
 )

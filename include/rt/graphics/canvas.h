@@ -17,7 +17,11 @@ class Canvas {
         height_(height),
         canvas_(width_ * height_, ColourRGB{0.0f, 0.0f, 0.0f}) {}
 
-  ColourRGB Read(std::size_t const x, std::size_t const y) const {
+  [[nodiscard]] std::size_t Width() const { return width_; }
+
+  [[nodiscard]] std::size_t Height() const { return height_; }
+
+  [[nodiscard]] ColourRGB Read(std::size_t const x, std::size_t const y) const {
     if (x >= width_ || y >= height_) {
       throw std::out_of_range("Invalid index to Canvas::Read");
     }

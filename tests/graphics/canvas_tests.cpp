@@ -26,6 +26,12 @@ TEST(Canvas, WriteAndRead) {
   EXPECT_FLOAT_EQ(b, 0.8f);
 }
 
+TEST(Canvas, WidthAndHeight) {
+  auto canvas = Canvas{4ULL, 5ULL};
+  ASSERT_EQ(canvas.Width(), 4ULL);
+  ASSERT_EQ(canvas.Height(), 5ULL);
+}
+
 TEST(Canvas, WriteOutOfBounds) {
   auto canvas = Canvas{4ULL, 4ULL};
   ASSERT_ANY_THROW(canvas.Write(4ULL, 0ULL, ColourRGB{1.0f, 0.0f, 0.0f}));
@@ -33,7 +39,7 @@ TEST(Canvas, WriteOutOfBounds) {
 
 TEST(Canvas, ReadOutOfBounds) {
   auto const canvas = Canvas{4ULL, 4ULL};
-  ASSERT_ANY_THROW(canvas.Read(4ULL, 0ULL));
+  ASSERT_ANY_THROW((void)canvas.Read(4ULL, 0ULL));
 }
 
 TEST(Canvas, UncheckedAccessor) {

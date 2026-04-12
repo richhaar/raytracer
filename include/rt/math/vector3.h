@@ -1,5 +1,5 @@
 // Copyright (c) 2026 Richard Haar <rh@richhaar.com>
-// Licensed under the MIT Licence
+// Licensed under the MIT License
 #ifndef VECTOR3_H
 #define VECTOR3_H
 #include <cmath>

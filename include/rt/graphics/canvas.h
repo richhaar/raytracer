@@ -1,5 +1,5 @@
 // Copyright (c) 2026 Richard Haar <rh@richhaar.com>
-// Licensed under the MIT Licence
+// Licensed under the MIT License
 #ifndef CANVAS_H
 #define CANVAS_H
 #include <vector>

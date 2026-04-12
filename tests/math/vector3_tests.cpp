@@ -1,5 +1,5 @@
 // Copyright (c) 2026 Richard Haar <rh@richhaar.com>
-// Licensed under the MIT Licence
+// Licensed under the MIT License
 #include <gtest/gtest.h>
 
 #include "rt/math/vector3.h"

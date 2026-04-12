@@ -1,5 +1,5 @@
 // Copyright (c) 2026 Richard Haar <rh@richhaar.com>
-// Licensed under the MIT Licence
+// Licensed under the MIT License
 
 #ifndef COLOUR_RGB_H
 #define COLOUR_RGB_H

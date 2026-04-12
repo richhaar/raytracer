@@ -24,10 +24,12 @@ include(GoogleTest)
 ##############################################################################
 
 add_executable(RayTracerTest
+        src/graphics/ppm_writer.cpp
         tests/graphics/colour_rgb_tests.cpp
         tests/math/point3_tests.cpp
         tests/math/vector3_tests.cpp
         tests/graphics/canvas_tests.cpp
+        tests/graphics/ppm_writer_tests.cpp
 )
 target_include_directories(RayTracerTest PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
 

@@ -6,7 +6,7 @@
 
 namespace rt {
 namespace {
-TEST(Matrix, Addition) {
+TEST(MatrixOps, Addition) {
   auto constexpr matrix1 = Matrix<2, 2>{1.0f, 2.0f, 3.0f, 4.0f};
   auto constexpr matrix2 = Matrix<2, 2>{4.0f, 3.0f, 2.0f, 1.0f};
 
@@ -18,7 +18,7 @@ TEST(Matrix, Addition) {
   ASSERT_EQ(sum(1, 1), 5.0f);
 }
 
-TEST(Matrix, AdditionAssignment) {
+TEST(MatrixOps, AdditionAssignment) {
   auto matrix1 = Matrix<2, 2>{1.1f, 2.2f, 3.3f, 4.4f};
   auto constexpr matrix2 = Matrix<2, 2>{1.1f, 2.2f, 3.3f, 4.4f};
 
@@ -29,7 +29,7 @@ TEST(Matrix, AdditionAssignment) {
   ASSERT_EQ(matrix1(1, 1), 8.8f);
 }
 
-TEST(Matrix, Multiplication) {
+TEST(MatrixOps, Multiplication) {
   auto constexpr matrix1 =
       Matrix<4, 4>{1.0f, 2.0f, 3.0f, 4.0f, 5.0f, 6.0f, 7.0f, 8.0f,
                    9.0f, 8.0f, 7.0f, 6.0f, 5.0f, 4.0,  3.0f, 2.0f};
@@ -59,11 +59,11 @@ TEST(Matrix, Multiplication) {
   ASSERT_FLOAT_EQ(product(3, 3), 42.0f);
 }
 
-TEST(Matrix, NearOperator) {
+TEST(MatrixOps, NearOperator) {
   ASSERT_TRUE(Near(Matrix<3, 3>::Identity(), Matrix<3, 3>::Identity()));
 }
 
-TEST(Matrix, NearOperatorNotEqual) {
+TEST(MatrixOps, NearOperatorNotEqual) {
   auto matrix = Matrix<3, 3>::Identity();
   matrix(0, 0) = 1.00001f;
   ASSERT_FALSE(Near(Matrix<3, 3>::Identity(), matrix));

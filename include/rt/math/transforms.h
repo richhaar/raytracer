@@ -6,10 +6,9 @@
 #include "rt/math/matrix.h"
 #include "rt/math/point3.h"
 #include "rt/math/vector3.h"
+#include "rt/math/concepts.h"
 
 namespace rt {
-template <std::size_t Rows, std::size_t Cols>
-concept TransformMatrix = (Rows == Cols) && (Rows == 3 || Cols == 4);
 
 namespace detail {
 template <std::size_t Rows, std::size_t Cols>

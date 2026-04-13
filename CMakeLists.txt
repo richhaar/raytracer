@@ -32,6 +32,7 @@ add_executable(RayTracerTest
         tests/graphics/canvas_tests.cpp
         tests/graphics/ppm_writer_tests.cpp
         tests/math/matrix_tests.cpp
+        tests/math/matrix_ops_tests.cpp
 )
 target_include_directories(RayTracerTest PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
 

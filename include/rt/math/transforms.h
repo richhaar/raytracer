@@ -42,6 +42,17 @@ constexpr Point3 operator*(Matrix<Rows, Cols> const& matrix,
 
   return {x + matrix(0, 3), y + matrix(1, 3), z + matrix(2, 3)};
 }
+
+template <std::size_t Rows, std::size_t Cols>
+constexpr Matrix<Cols, Rows> Transpose(Matrix<Rows, Cols> const& matrix) {
+  Matrix<Cols, Rows> transposed;
+  for (std::size_t col = 0; col < Rows; ++col) {
+    for (std::size_t row = 0; row < Cols; ++row) {
+      transposed(row, col) = matrix(col, row);
+    }
+  }
+  return transposed;
+}
 }  // namespace rt
 
 #endif  // RAYTRACER_TRANSFORMS_H

@@ -3,10 +3,10 @@
 #ifndef RAYTRACER_TRANSFORMS_H
 #define RAYTRACER_TRANSFORMS_H
 
+#include "rt/math/concepts.h"
 #include "rt/math/matrix.h"
 #include "rt/math/point3.h"
 #include "rt/math/vector3.h"
-#include "rt/math/concepts.h"
 
 namespace rt {
 
@@ -51,6 +51,80 @@ constexpr Matrix<Cols, Rows> Transpose(Matrix<Rows, Cols> const& matrix) {
     }
   }
   return transposed;
+}
+
+constexpr Matrix<4, 4> Translation(float const x, float const y,
+                                   float const z) {
+  return Matrix<4, 4>{1.0f, 0.0f, 0.0f, x, 0.0f, 1.0f, 0.0f, y,
+                      0.0f, 0.0f, 1.0f, z, 0.0f, 0.0f, 0.0f, 1.0f};
+}
+
+constexpr Matrix<4, 4> Scaling(float const x, float const y, float const z) {
+  return Matrix<4, 4>{x,    0.0f, 0.0f, 0.0f, 0.0f, y,    0.0f, 0.0f,
+                      0.0f, 0.0f, z,    0.0f, 0.0f, 0.0f, 0.0f, 1.0f};
+}
+
+constexpr Matrix<4, 4> RotateX(float const radians) {
+  return Matrix<4, 4>{1.0f,
+                      0.0f,
+                      0.0f,
+                      0.0f,
+                      0.0f,
+                      std::cos(radians),
+                      -std::sin(radians),
+                      0.0f,
+                      0.0f,
+                      std::sin(radians),
+                      std::cos(radians),
+                      0.0f,
+                      0.0f,
+                      0.0f,
+                      0.0f,
+                      1.0f};
+}
+
+constexpr Matrix<4, 4> RotateY(float const radians) {
+  return Matrix<4, 4>{std::cos(radians),
+                      0.0f,
+                      std::sin(radians),
+                      0.0f,
+                      0.0f,
+                      1.0f,
+                      0.0f,
+                      0.0f,
+                      -std::sin(radians),
+                      0.0f,
+                      std::cos(radians),
+                      0.0f,
+                      0.0f,
+                      0.0f,
+                      0.0f,
+                      1.0f};
+}
+
+constexpr Matrix<4, 4> RotateZ(float const radians) {
+  return Matrix<4, 4>{std::cos(radians),
+                      -std::sin(radians),
+                      0.0f,
+                      0.0f,
+                      std::sin(radians),
+                      std::cos(radians),
+                      0.0f,
+                      0.0f,
+                      0.0f,
+                      0.0f,
+                      1.0f,
+                      0.0f,
+                      0.0f,
+                      0.0f,
+                      0.0f,
+                      1.0f};
+}
+
+constexpr Matrix<4, 4> Shear(float const xy, float const xz, float const yx,
+                             float const yz, float const zx, float const zy) {
+  return Matrix<4, 4>{1.0f, xy, xz,   0.0f, yx,   1.0f, yz,   0.0f,
+                      zx,   zy, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f};
 }
 }  // namespace rt
 

@@ -66,9 +66,217 @@ TEST(Transforms, TranposeMatrixSquare) {
 
   ASSERT_TRUE(Near(Transpose(matrix), expected_matrix));
 }
+
 TEST(Transforms, TranposeIdentity) {
   ASSERT_TRUE(
       Near(Transpose(Matrix<3, 3>::Identity()), Matrix<3, 3>::Identity()));
+}
+
+TEST(Transforms, TranslationOnPoint3) {
+  auto const transform = Translation(5, -3, 2);
+  auto pos = Point3{-3.0f, 4.0f, 5.0f};
+  auto const [x, y, z] = transform * pos;
+
+  ASSERT_FLOAT_EQ(x, 2.0);
+  ASSERT_FLOAT_EQ(y, 1.0);
+  ASSERT_FLOAT_EQ(z, 7.0);
+}
+
+TEST(Transforms, InverseTranslationOnPoint3) {
+  auto const transform = Inverse(Translation(5, -3, 2));
+  auto constexpr pos = Point3{-3.0f, 4.0f, 5.0f};
+  auto const [x, y, z] = transform * pos;
+
+  ASSERT_FLOAT_EQ(x, -8.0);
+  ASSERT_FLOAT_EQ(y, 7.0);
+  ASSERT_FLOAT_EQ(z, 3.0);
+}
+
+TEST(Transforms, TranslationDoesntChangeVector3) {
+  auto constexpr transform = Translation(5, -3, 2);
+  auto constexpr pos = Vector3{-3.0f, 4.0f, 5.0f};
+  auto const [x, y, z] = transform * pos;
+
+  ASSERT_FLOAT_EQ(x, -3.0);
+  ASSERT_FLOAT_EQ(y, 4.0);
+  ASSERT_FLOAT_EQ(z, 5.0);
+}
+
+TEST(Transforms, ScalingPoint3) {
+  auto constexpr scaling = Scaling(2.0f, 3.0f, 4.0f);
+  auto constexpr point = Point3{-4.0f, 6.0f, 8.0f};
+  auto const [x, y, z] = scaling * point;
+  ASSERT_FLOAT_EQ(x, -8.0f);
+  ASSERT_FLOAT_EQ(y, 18.0f);
+  ASSERT_FLOAT_EQ(z, 32.0f);
+}
+
+TEST(Transforms, ScalingVector3) {
+  auto constexpr scaling = Scaling(2.0f, 3.0f, 4.0f);
+  auto constexpr vec = Vector3{-4.0f, 6.0f, 8.0f};
+  auto const [x, y, z] = scaling * vec;
+  ASSERT_FLOAT_EQ(x, -8.0f);
+  ASSERT_FLOAT_EQ(y, 18.0f);
+  ASSERT_FLOAT_EQ(z, 32.0f);
+}
+
+TEST(Transforms, InverseScalingVector3) {
+  auto const scaling = Inverse(Scaling(2.0f, 3.0f, 4.0f));
+  auto constexpr vec = Vector3{-4.0f, 6.0f, 8.0f};
+  auto const [x, y, z] = scaling * vec;
+  ASSERT_FLOAT_EQ(x, -2.0f);
+  ASSERT_FLOAT_EQ(y, 2.0f);
+  ASSERT_FLOAT_EQ(z, 2.0f);
+}
+
+TEST(Transforms, ReflectionViaScaling) {
+  auto constexpr scaling = Scaling(-1.0f, 1.0f, 1.0f);
+  auto constexpr point = Point3(2.0f, 3.0f, 4.0f);
+  auto const [x, y, z] = scaling * point;
+  ASSERT_FLOAT_EQ(x, -2.0f);
+  ASSERT_FLOAT_EQ(y, 3.0f);
+  ASSERT_FLOAT_EQ(z, 4.0f);
+}
+
+TEST(Transform, RotateXHalfQuarterTurn) {
+  auto constexpr point = Point3{0.0f, 1.0f, 0.0f};
+  auto const half_quarter = RotateX(std::numbers::pi_v<float> / 4.0f);
+  auto const [x, y, z] = half_quarter * point;
+
+  ASSERT_FLOAT_EQ(x, 0.0f);
+  ASSERT_FLOAT_EQ(y, std::sqrt(2.0f) / 2.0f);
+  ASSERT_FLOAT_EQ(z, std::sqrt(2.0f) / 2.0f);
+}
+
+TEST(Transform, RotateXQuarterTurn) {
+  auto constexpr point = Point3{0.0f, 1.0f, 0.0f};
+  auto const full_quarter = RotateX(std::numbers::pi_v<float> / 2.0f);
+  auto const [x, y, z] = full_quarter * point;
+
+  ASSERT_FLOAT_EQ(x, 0.0f);
+  ASSERT_NEAR(y, 0.0f, 1e-7f);
+  ASSERT_FLOAT_EQ(z, 1.0f);
+}
+
+TEST(Transform, InverseRotateXHalfQuarter) {
+  auto constexpr point = Point3{0.0f, 1.0f, 0.0f};
+  auto const half_quarter = Inverse(RotateX(std::numbers::pi_v<float> / 4.0f));
+  auto const [x, y, z] = half_quarter * point;
+
+  ASSERT_FLOAT_EQ(x, 0.0f);
+  ASSERT_FLOAT_EQ(y, std::sqrt(2.0f) / 2.0f);
+  ASSERT_FLOAT_EQ(z, -std::sqrt(2.0f) / 2.0f);
+}
+
+TEST(Transform, RotateYHalfQuarterTurn) {
+  auto constexpr point = Point3{0.0f, 0.0f, 1.0f};
+  auto const half_quarter = RotateY(std::numbers::pi_v<float> / 4.0f);
+  auto const [x, y, z] = half_quarter * point;
+
+  ASSERT_FLOAT_EQ(x, std::sqrt(2.0f) / 2.0f);
+  ASSERT_FLOAT_EQ(y, 0.0f);
+  ASSERT_FLOAT_EQ(z, std::sqrt(2.0f) / 2.0f);
+}
+
+TEST(Transform, RotateYFullQuarterTurn) {
+  auto constexpr point = Point3{0.0f, 0.0f, 1.0f};
+  auto const full_quarter = RotateY(std::numbers::pi_v<float> / 2.0f);
+  auto const [x, y, z] = full_quarter * point;
+
+  ASSERT_FLOAT_EQ(x, 1.0f);
+  ASSERT_FLOAT_EQ(y, 0.0f);
+  ASSERT_NEAR(z, 0.0f, 1e-7);
+}
+
+TEST(Transform, RotateZHalfQuarterTurn) {
+  auto constexpr point = Point3{0.0f, 1.0f, 0.0f};
+  auto const half_quarter = RotateZ(std::numbers::pi_v<float> / 4.0f);
+  auto const [x, y, z] = half_quarter * point;
+
+  ASSERT_FLOAT_EQ(x, -std::sqrt(2.0f) / 2.0f);
+  ASSERT_FLOAT_EQ(y, std::sqrt(2.0f) / 2.0f);
+  ASSERT_FLOAT_EQ(z, 0.0f);
+}
+
+TEST(Transform, RotateZFullQuarterTurn) {
+  auto constexpr point = Point3{0.0f, 1.0f, 0.0f};
+  auto const full_quarter = RotateZ(std::numbers::pi_v<float> / 2.0f);
+  auto const [x, y, z] = full_quarter * point;
+
+  ASSERT_FLOAT_EQ(x, -1.0f);
+  ASSERT_NEAR(y, 0.0f, 1e-7f);
+  ASSERT_FLOAT_EQ(z, 0.0f);
+}
+
+TEST(Shearing, ShearXOnY) {
+  auto const shear = Shear(1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f);
+  auto constexpr pos = Point3{2.0f, 3.0f, 4.0f};
+  auto const [x, y, z] = shear * pos;
+
+  EXPECT_FLOAT_EQ(x, 5.0f);
+  EXPECT_FLOAT_EQ(y, 3.0f);
+  EXPECT_FLOAT_EQ(z, 4.0f);
+}
+
+TEST(Shearing, ShearXOnZ) {
+  auto const shear = Shear(0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f);
+  auto constexpr pos = Point3{2.0f, 3.0f, 4.0f};
+  auto const [x, y, z] = shear * pos;
+
+  EXPECT_FLOAT_EQ(x, 6.0f);
+  EXPECT_FLOAT_EQ(y, 3.0f);
+  EXPECT_FLOAT_EQ(z, 4.0f);
+}
+
+TEST(Shearing, ShearYOnX) {
+  auto constexpr shear = Shear(0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f);
+  auto constexpr pos = Point3{2.0f, 3.0f, 4.0f};
+  auto const [x, y, z] = shear * pos;
+
+  EXPECT_FLOAT_EQ(x, 2.0f);
+  EXPECT_FLOAT_EQ(y, 5.0f);
+  EXPECT_FLOAT_EQ(z, 4.0f);
+}
+
+TEST(Shearing, ShearYOnZ) {
+  auto constexpr shear = Shear(0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f);
+  auto constexpr pos = Point3{2.0f, 3.0f, 4.0f};
+  auto const [x, y, z] = shear * pos;
+
+  EXPECT_FLOAT_EQ(x, 2.0f);
+  EXPECT_FLOAT_EQ(y, 7.0f);
+  EXPECT_FLOAT_EQ(z, 4.0f);
+}
+
+TEST(Shearing, ShearZOnX) {
+  auto constexpr shear = Shear(0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f);
+  auto constexpr pos = Point3{2.0f, 3.0f, 4.0f};
+  auto const [x, y, z] = shear * pos;
+
+  EXPECT_FLOAT_EQ(x, 2.0f);
+  EXPECT_FLOAT_EQ(y, 3.0f);
+  EXPECT_FLOAT_EQ(z, 6.0f);
+}
+
+TEST(Shearing, ShearZOnY) {
+  auto constexpr shear = Shear(0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f);
+  auto constexpr pos = Point3{2.0f, 3.0f, 4.0f};
+  auto const [x, y, z] = shear * pos;
+
+  EXPECT_FLOAT_EQ(x, 2.0f);
+  EXPECT_FLOAT_EQ(y, 3.0f);
+  EXPECT_FLOAT_EQ(z, 7.0f);
+}
+
+TEST(Transforms, ChainedTransformations) {
+  auto constexpr pos = Point3{1.0f, 0.0f, 1.0f};
+  auto constexpr A = RotateX(std::numbers::pi_v<float> / 2.0f);
+  auto constexpr B = Scaling(5.0f, 5.0f, 5.0f);
+  auto constexpr C = Translation(10.0f, 5.0f, 7.0f);
+  auto const [x, y, z] = C * B * A * pos;
+  ASSERT_FLOAT_EQ(x, 15.0f);
+  ASSERT_FLOAT_EQ(y, 0.0f);
+  ASSERT_FLOAT_EQ(z, 7.0f);
 }
 }  // namespace
 }  // namespace rt

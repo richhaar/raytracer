@@ -38,8 +38,8 @@ TEST(PPMWriter, WriteCanvasTenByTwo) {
 
   auto constexpr colour = ColourRGB{1.0f, 0.8f, 0.6f};
 
-  for (int y = 0; y < 2; ++y) {
-    for (int x = 0; x < 10; ++x) {
+  for (std::size_t y = 0; y < 2; ++y) {
+    for (std::size_t x = 0; x < 10; ++x) {
       c.Write(x, y, colour);
     }
   }

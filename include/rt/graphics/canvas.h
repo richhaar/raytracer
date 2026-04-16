@@ -6,6 +6,7 @@
 
 #include "colour_rgb.h"
 
+namespace rt {
 class Canvas {
   std::size_t width_ = 0;
   std::size_t height_ = 0;
@@ -43,5 +44,5 @@ class Canvas {
     return canvas_[x + y * width_];
   }
 };
-
+}  // namespace rt
 #endif  // CANVAS_H

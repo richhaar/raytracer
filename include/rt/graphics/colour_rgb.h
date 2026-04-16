@@ -4,6 +4,7 @@
 #ifndef COLOUR_RGB_H
 #define COLOUR_RGB_H
 
+namespace rt {
 /**
  * @brief Represent an RGB colour
  */
@@ -32,5 +33,5 @@ inline ColourRGB operator*(ColourRGB const& colour, float const scalar) {
 inline ColourRGB operator*(float const scalar, ColourRGB const& colour) {
   return colour * scalar;
 }
-
+}  // namespace rt
 #endif  // COLOUR_RGB_H

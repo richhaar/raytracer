@@ -24,5 +24,9 @@ inline Point3 operator-(Point3 const& lhs, Vector3 const& rhs) {
   return Point3{lhs.x - rhs.x, lhs.y - rhs.y, lhs.z - rhs.z};
 }
 
+inline Vector3 operator-(Point3 const& lhs, Point3 const& rhs) {
+  return Vector3{lhs.x - rhs.x, lhs.y - rhs.y, lhs.z - rhs.z};
+}
+
 }  // namespace rt
 #endif  // POINT3_H

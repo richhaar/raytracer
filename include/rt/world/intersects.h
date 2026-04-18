@@ -1,0 +1,31 @@
+// Copyright (c) 2026 Richard Haar <rh@richhaar.com>
+// Licensed under the MIT License
+#ifndef RAYTRACER_INTERSECTS_H
+#define RAYTRACER_INTERSECTS_H
+
+#include "rt/world/ray.h"
+#include "rt/world/sphere.h"
+namespace rt {
+
+inline std::optional<std::pair<float, float>> Intersects(Sphere const&,
+                                                         Ray const& ray) {
+  auto const sphere_to_ray =
+      ray.origin - Point3(0.0f, 0.0f, 0.0f);  // assume sphere is 0,0,0
+  auto const a = Dot(ray.direction, ray.direction);
+  auto const b = 2.0f * Dot(ray.direction, sphere_to_ray);
+  auto const c = Dot(sphere_to_ray, sphere_to_ray) - 1.0f;
+
+  auto const discriminant = b * b - 4.0f * a * c;
+
+  if (discriminant < 0.0f) {
+    return {};
+  }
+
+  auto const t1 = (-b - std::sqrt(discriminant)) / (2.0f * a);
+  auto const t2 = (-b + std::sqrt(discriminant)) / (2.0f * a);
+
+  return std::make_pair(t1, t2);
+}
+}  // namespace rt
+
+#endif  // RAYTRACER_INTERSECTS_H

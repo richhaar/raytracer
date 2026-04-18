@@ -3,7 +3,8 @@
 project("RayTracer")
 
 add_executable(RayTracer src/main.cpp
-        src/graphics/ppm_writer.cpp)
+        src/graphics/ppm_writer.cpp
+        src/world/uuid.cpp)
 target_include_directories(RayTracer PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
 set_property(TARGET RayTracer PROPERTY CXX_STANDARD 20)
 
@@ -26,6 +27,7 @@ include(GoogleTest)
 
 add_executable(RayTracerTest
         src/graphics/ppm_writer.cpp
+        src/world/uuid.cpp
         tests/graphics/colour_rgb_tests.cpp
         tests/math/point3_tests.cpp
         tests/math/vector3_tests.cpp
@@ -34,6 +36,10 @@ add_executable(RayTracerTest
         tests/math/matrix_tests.cpp
         tests/math/matrix_ops_tests.cpp
         tests/math/transforms_tests.cpp
+        tests/world/ray_tests.cpp
+        tests/world/sphere_tests.cpp
+        tests/world/intersects_tests.cpp
+        tests/world/intersects_tests.cpp
 )
 target_include_directories(RayTracerTest PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
 

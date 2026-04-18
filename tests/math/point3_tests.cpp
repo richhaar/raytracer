@@ -27,6 +27,10 @@ TEST(Point3, SubtractVectorFromPoint) {
   ASSERT_FLOAT_EQ(z, -3.0);
 }
 
+TEST(Point3, Point3MinusPoint3GivesVector3) {
+  auto const vec = Point3{1.0, 2.0, 3.0} - Point3{4.0, 5.0, 6.0};
+  testing::StaticAssertTypeEq<decltype(vec), const Vector3>();
+}
 
 }  // namespace
 }  // namespace rt

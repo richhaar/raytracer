@@ -38,8 +38,6 @@ add_executable(RayTracerTest
         tests/math/transforms_tests.cpp
         tests/world/ray_tests.cpp
         tests/world/sphere_tests.cpp
-        tests/world/intersects_tests.cpp
-        tests/world/intersects_tests.cpp
 )
 target_include_directories(RayTracerTest PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
 

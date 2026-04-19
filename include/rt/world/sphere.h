@@ -5,16 +5,43 @@
 #include <cstdint>
 
 #include "rt/util/noncopyable.h"
+#include "rt/world/intersectable.h"
+#include "rt/world/ray.h"
 #include "rt/world/uuid.h"
 
 namespace rt {
-class Sphere : public NonCopyable {
+class Sphere : public NonCopyable, public Intersectable {
   uint64_t uuid_;
+  Matrix<4, 4> transform_{Matrix<4, 4>::Identity()};
+
+  std::optional<std::pair<HitRecord, HitRecord>> DoHit(
+      Ray const& ray) const override {
+    const auto [origin, direction] = Transform(ray, Inverse(transform_));
+    auto const sphere_to_ray =
+        origin -
+        Point3(0.0f, 0.0f, 0.0f);  // assume sphere is 0,0,0
+    auto const a = Dot(direction, direction);
+    auto const b = 2.0f * Dot(direction, sphere_to_ray);
+    auto const c = Dot(sphere_to_ray, sphere_to_ray) - 1.0f;
+
+    auto const discriminant = b * b - 4.0f * a * c;
+
+    if (discriminant < 0.0f) {
+      return {};
+    }
+
+    auto const t1 = (-b - std::sqrt(discriminant)) / (2.0f * a);
+    auto const t2 = (-b + std::sqrt(discriminant)) / (2.0f * a);
+
+    return std::make_pair(HitRecord{t1, this}, HitRecord{t2, this});
+  }
 
  public:
   Sphere() : uuid_(Uuid()) {}
 
-  bool operator==(Sphere const& rhs) const { return uuid_ == rhs.uuid_; };
+  void SetTransform(Matrix<4, 4> const& matrix) { transform_ = matrix; }
+
+  bool operator==(Sphere const& rhs) const { return uuid_ == rhs.uuid_; }
 };
 }  // namespace rt
 

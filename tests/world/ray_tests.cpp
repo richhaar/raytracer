@@ -53,5 +53,33 @@ TEST(Ray, Position) {
   ASSERT_FLOAT_EQ(t2p5_z, 4.0f);
 }
 
+TEST(Ray, TranslateRay) {
+  auto constexpr ray = Ray{Point3{1.0f, 2.0f, 3.0f}, Vector3{0.0f, 1.0f, 0.0f}};
+  auto constexpr translation = Translation(3.0f, 4.0f, 5.0f);
+
+  const auto [origin, direction] = Transform(ray, translation);
+  ASSERT_FLOAT_EQ(origin.x, 4.0f);
+  ASSERT_FLOAT_EQ(origin.y, 6.0f);
+  ASSERT_FLOAT_EQ(origin.z, 8.0f);
+
+  ASSERT_FLOAT_EQ(direction.x, 0.0f);
+  ASSERT_FLOAT_EQ(direction.y, 1.0f);
+  ASSERT_FLOAT_EQ(direction.z, 0.0f);
+}
+
+TEST(Ray, ScaleRay) {
+  auto constexpr ray = Ray{Point3{1.0f, 2.0f, 3.0f}, Vector3{0.0f, 1.0f, 0.0f}};
+  auto constexpr scaling = Scaling(2.0f, 3.0f, 4.0f);
+
+  const auto [origin, direction] = Transform(ray, scaling);
+  ASSERT_FLOAT_EQ(origin.x, 2.0f);
+  ASSERT_FLOAT_EQ(origin.y, 6.0f);
+  ASSERT_FLOAT_EQ(origin.z, 12.0f);
+
+  ASSERT_FLOAT_EQ(direction.x, 0.0f);
+  ASSERT_FLOAT_EQ(direction.y, 3.0f);
+  ASSERT_FLOAT_EQ(direction.z, 0.0f);
+}
+
 }  // namespace
 }  // namespace rt

@@ -83,5 +83,9 @@ inline bool Near(Vector3 const& vec1, Vector3 const& vec2,
   return Dot(diff, diff) <= epsilon * epsilon;
 }
 
+inline Vector3 Reflect(Vector3 const& vec, Vector3 const& normal) {
+  return vec - normal * 2 * Dot(vec, normal);
+}
+
 }  // namespace rt
 #endif  // VECTOR3_H

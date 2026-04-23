@@ -110,5 +110,23 @@ TEST(Vector3, NearComparisonCustomEpsilon) {
   ASSERT_FALSE(
       Near(Vector3{0.0f, 0.0f, 0.0f}, Vector3{1.0f, 0.0f, 0.0f}, 0.99f));
 }
+
+TEST(Vector3, Reflect45Degree) {
+  auto constexpr vec = Vector3{1.0f, -1.0f, 0.0f};
+  auto constexpr normal = Vector3{0.0f, 1.0f, 0.0f};
+  auto const [x, y, z] = Reflect(vec, normal);
+  ASSERT_FLOAT_EQ(x, 1.0f);
+  ASSERT_FLOAT_EQ(y, 1.0f);
+  ASSERT_FLOAT_EQ(z, 0.0f);
+}
+
+TEST(Vector3, ReflectOffSlantedSurface) {
+  auto constexpr vec = Vector3{0.0f, -1.0f, 0.0f};
+  auto const normal = Vector3{std::sqrt(2.0f) / 2.0f, std::sqrt(2.0f) / 2.0f, 0.0f};
+  auto const [x, y, z] = Reflect(vec, normal);
+  ASSERT_FLOAT_EQ(x, 1.0f);
+  ASSERT_NEAR(y, 0.0f, 1e-7f);
+  ASSERT_NEAR(z, 0.0f, 1e-7f);
+}
 }  // namespace
 }  // namespace rt

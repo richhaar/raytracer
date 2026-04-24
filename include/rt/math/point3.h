@@ -11,9 +11,9 @@ namespace rt {
  * @brief Represent a 3D point in space
  */
 struct Point3 {
-  float x;
-  float y;
-  float z;
+  float x = 0.0f;
+  float y = 0.0f;
+  float z = 0.0f;
 };
 
 inline Point3 operator+(Point3 const& lhs, Vector3 const& rhs) {

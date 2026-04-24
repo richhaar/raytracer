@@ -9,9 +9,9 @@ namespace rt {
  * @brief Represent an RGB colour
  */
 struct ColourRGB {
-  float red;
-  float green;
-  float blue;
+  float red = 1.0f;
+  float green = 1.0f;
+  float blue = 1.0f;
 };
 
 inline ColourRGB operator+(ColourRGB const& lhs, ColourRGB const& rhs) {

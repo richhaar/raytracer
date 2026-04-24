@@ -7,7 +7,7 @@
 
 namespace rt {
 struct PointLight {
-  ColourRGB colour;
+  ColourRGB colour = ColourRGB::White();
   Point3 position;
 };
 }  // namespace rt

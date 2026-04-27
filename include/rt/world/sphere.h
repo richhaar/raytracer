@@ -43,6 +43,8 @@ class Sphere : public NonCopyable, public Intersectable {
   void SetTransform(Matrix<4, 4> const& matrix) { transform_ = matrix; }
   void SetMaterial(Material const& material) { material_ = material; }
 
+  Material GetMaterial() const { return material_; }
+
   Matrix<4, 4> GetTransform() const { return transform_; }
   bool operator==(Sphere const& rhs) const { return uuid_ == rhs.uuid_; }
 };

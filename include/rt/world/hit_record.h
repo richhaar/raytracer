@@ -10,6 +10,7 @@ struct HitRecord {
   float t;
   Intersectable const* object;
 };
+
 }  // namespace rt
 
 #endif  // RAYTRACER_HIT_RECORD_H

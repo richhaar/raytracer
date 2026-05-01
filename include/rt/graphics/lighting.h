@@ -4,9 +4,10 @@
 #define RAYTRACER_LIGHTING_H
 #include "colour_rgb.h"
 #include "material.h"
+#include "rt/world/hit_info.h"
 #include "rt/world/point_light.h"
+#include "rt/world/world.h"
 namespace rt {
-struct Material;
 
 inline ColourRGB Lighting(Material const& material, PointLight const& light,
                           Point3 const& point, Vector3 const& eye,
@@ -23,8 +24,7 @@ inline ColourRGB Lighting(Material const& material, PointLight const& light,
     return ambient;
   }
 
-  auto const diffuse =
-      effective_colour * material.diffuse * light_dot_normal;
+  auto const diffuse = effective_colour * material.diffuse * light_dot_normal;
 
   auto const reflect_vec = Reflect(-light_vec, normal_vec);
   auto const reflect_dot_eye = Dot(reflect_vec, eye_vec);
@@ -36,6 +36,35 @@ inline ColourRGB Lighting(Material const& material, PointLight const& light,
   }
 
   return ambient + diffuse + specular;
+}
+
+inline ColourRGB ShadeHit(World const& world, HitInfo const& hit_info) {
+  // TODO move GetMaterial to base class to avoid static cast hack
+
+  ColourRGB colour{0.0f, 0.0f, 0.0f};
+  for (auto const& light : world.lights_) {
+    colour =
+        colour +
+        Lighting(
+            dynamic_cast<Sphere const*>(hit_info.hit.object)->GetMaterial(),
+            light, hit_info.point, hit_info.eye, hit_info.normal);
+  }
+  return colour;
+}
+
+inline ColourRGB ColourAt(World const& world, Ray const& ray) {
+  auto const intersections = IntersectWorld(world, ray);
+
+  auto const iter = std::ranges::upper_bound(
+      intersections, HitRecord{0.0f, nullptr},
+      [](HitRecord const& a, HitRecord const& b) { return a.t < b.t; });
+
+  if (iter == intersections.cend()) {
+    return ColourRGB::Black();
+  }
+
+  auto const info = CalculateHitInfo(*iter, ray);
+  return ShadeHit(world, info);
 }
 }  // namespace rt
 #endif  // RAYTRACER_LIGHTING_H

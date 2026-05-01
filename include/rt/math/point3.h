@@ -28,5 +28,11 @@ inline Vector3 operator-(Point3 const& lhs, Point3 const& rhs) {
   return Vector3{lhs.x - rhs.x, lhs.y - rhs.y, lhs.z - rhs.z};
 }
 
+inline bool Near(Point3 const& vec1, Point3 const& vec2,
+                 float const epsilon = 1e-6f) {
+  auto const diff = vec1 - vec2;
+  return Dot(diff, diff) <= epsilon * epsilon;
+}
+
 }  // namespace rt
 #endif  // POINT3_H

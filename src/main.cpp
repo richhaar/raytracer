@@ -46,13 +46,10 @@ int main() {
 
       if (auto const hit = sph.Hit(ray); hit.has_value()) {
         auto const point = Position(ray, hit->first.t);
-        auto const normal = NormalAt(
-            sph, point);  // NormalAt(hit->first.object, point); //todo refactor
-
         auto const eye = -ray.direction;
 
-        auto const colour =
-            rt::Lighting(sph.GetMaterial(), light, point, eye, normal);
+        auto const colour = rt::Lighting(sph.GetMaterial(), light, point, eye,
+                                         sph.NormalAt(point));
 
         canvas.Write(x, width - y, colour);
       }

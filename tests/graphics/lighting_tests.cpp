@@ -7,6 +7,7 @@
 #include "rt/graphics/material.h"
 #include "rt/math/vector3.h"
 #include "rt/world/point_light.h"
+#include "rt/world/world_builder.h"
 
 namespace rt {
 namespace {
@@ -91,5 +92,80 @@ TEST(Lighting, LightBehindSurface) {
   ASSERT_FLOAT_EQ(g, 0.1f);
   ASSERT_FLOAT_EQ(b, 0.1f);
 }
+
+TEST(ShadeHit, ShadingIntersection) {
+
+  auto const world = DefaultWorld();
+  auto constexpr ray = Ray{Point3{0.0f, 0.0f, -5.0f}, Vector3{0.0f, 0.0f, 1.0f}};
+
+  ASSERT_FALSE(world.objects_.empty());
+  auto const& sphere = world.objects_[0];
+
+  auto const hit = HitRecord{4.0f, sphere.get()};
+  auto const info = CalculateHitInfo(hit, ray);
+
+  auto const [r, g, b] = ShadeHit(world, info);
+  ASSERT_NEAR(r, 0.38066f, 1e-5f);
+  ASSERT_NEAR(g, 0.47583f, 1e-5f);
+  ASSERT_NEAR(b, 0.2855f, 1e-5f);
+}
+
+TEST(ShadeHit, ShadingIntersectionFromInside) {
+  WorldBuilder builder;
+  auto const world =
+      builder
+          .AddLight(PointLight(ColourRGB::White(), Point3(0.0f, 0.25f, 0.0f)))
+          .AddSphere(Matrix<4, 4>::Identity(),
+                     Material{.colour = ColourRGB{0.8f, 1.0f, 0.6f},
+                              .diffuse = 0.7f,
+                              .specular = 0.2f})
+          .AddSphere(Scaling(0.5f, 0.5f, 0.5f), Material{})
+          .Build();
+
+
+  auto constexpr ray = Ray{Point3{0.0f, 0.0f, 0.0f}, Vector3{0.0f, 0.0f, 1.0f}};
+
+  auto const& sphere = world.objects_[1];
+
+  auto const hit = HitRecord{0.5f, sphere.get()};
+  auto const info = CalculateHitInfo(hit, ray);
+
+  auto const [r, g, b] = ShadeHit(world, info);
+  ASSERT_NEAR(r, 0.90498f, 1e-5f);
+  ASSERT_NEAR(g, 0.90498f, 1e-5f);
+  ASSERT_NEAR(b, 0.90498f, 1e-5f);
+}
+
+TEST(ColourAt, NoIntersectionOnRay) {
+  auto const world = DefaultWorld();
+  auto constexpr ray = Ray(Point3{0.0f, 0.0f, -5.0f}, Vector3{0.0f, 1.0f, 0.0f});
+  auto const [r,g,b] = ColourAt(world, ray);
+
+  ASSERT_FLOAT_EQ(r, 0.0f);
+  ASSERT_FLOAT_EQ(g, 0.0f);
+  ASSERT_FLOAT_EQ(b, 0.0f);
+}
+
+TEST(ColourAt, RayHitsSphere) {
+  auto const world = DefaultWorld();
+  auto constexpr ray = Ray(Point3{0.0f, 0.0f, -5.0f}, Vector3{0.0f, 0.0f, 1.0f});
+  auto const [r,g,b] = ColourAt(world, ray);
+
+  ASSERT_NEAR(r, 0.38066f, 1e-4f);
+  ASSERT_NEAR(g, 0.47583f, 1e-4f);
+  ASSERT_NEAR(b, 0.2855f, 1e-4f);
+}
+
+TEST(ColourAt, IntersectionBehindRay) {
+  auto const world = DefaultWorld();
+
+  auto constexpr ray = Ray(Point3{0.0f, 0.0f, 0.75f}, Vector3{0.0f, 0.0f, -1.0f});
+  auto const [r,g,b] = ColourAt(world, ray);
+
+  ASSERT_NEAR(r, 0.1f, 1e-5f);
+  ASSERT_NEAR(g, 0.1f, 1e-5f);
+  ASSERT_NEAR(b, 0.1f, 1e-5f);
+}
+
 }  // namespace
 }  // namespace rt

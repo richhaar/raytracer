@@ -37,25 +37,25 @@ class Sphere : public NonCopyable, public Intersectable {
     return std::make_pair(HitRecord{t1, this}, HitRecord{t2, this});
   }
 
+  [[nodiscard]] Vector3 DoNormalAt(Point3 const& point) const override {
+    auto const inv_transform = Inverse(GetTransform());
+    auto const object_point = inv_transform * point;
+    auto const object_normal = object_point - Point3{0.0f, 0.0f, 0.0f};
+    auto const world_normal = Transpose(inv_transform) * object_normal;
+    return Normalize(world_normal);
+  }
+
  public:
   Sphere() : uuid_(Uuid()) {}
 
   void SetTransform(Matrix<4, 4> const& matrix) { transform_ = matrix; }
   void SetMaterial(Material const& material) { material_ = material; }
 
-  Material GetMaterial() const { return material_; }
+  [[nodiscard]] Material GetMaterial() const { return material_; }
 
-  Matrix<4, 4> GetTransform() const { return transform_; }
+  [[nodiscard]] Matrix<4, 4> GetTransform() const { return transform_; }
   bool operator==(Sphere const& rhs) const { return uuid_ == rhs.uuid_; }
 };
-
-inline Vector3 NormalAt(Sphere const& s, Point3 const& point) {
-  auto const inv_transform = Inverse(s.GetTransform());
-  auto const object_point = inv_transform * point;
-  auto const object_normal = object_point - Point3{0.0f, 0.0f, 0.0f};
-  auto const world_normal = Transpose(inv_transform) * object_normal;
-  return Normalize(world_normal);
-}
 }  // namespace rt
 
 #endif  // RAYTRACER_SPHERE_H

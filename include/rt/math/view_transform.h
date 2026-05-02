@@ -3,6 +3,7 @@
 #ifndef RAYTRACER_VIEW_TRANSFORM_H
 #define RAYTRACER_VIEW_TRANSFORM_H
 #include "matrix.h"
+#include "matrix_ops.h"
 #include "point3.h"
 
 namespace rt {

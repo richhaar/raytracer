@@ -53,17 +53,30 @@ int main() {
                      rt::Material{.colour = rt::ColourRGB{1.0f, 0.8f, 0.1f},
                                   .diffuse = 0.7f,
                                   .specular = 0.9f})
+  .AddSphere(rt::Translation(-2.5f, 0.33f, -0.75f) *
+               rt::Scaling(0.33f, 0.33f, 0.33f),
+           rt::Material{.colour = rt::ColourRGB{1.0f, 0.8f, 0.1f},
+                        .diffuse = 0.7f,
+                        .specular = 0.9f})
           // Light source
-          .AddLight(rt::PointLight{rt::ColourRGB::White(),
+          .AddLight(rt::PointLight{rt::ColourRGB{0.1f, 0.7f, 0.4f},
                                    rt::Point3{-10.0f, 10.0f, -10.0f}})
+  .AddLight(rt::PointLight{rt::ColourRGB{0.4f, 0.1f, 0.4f},
+                         rt::Point3{10.0f, 10.0f, -10.0f}})
           .Build();
 
   auto const cam =
-      rt::Camera::Create(1000, 500, pi / 3.0f,
+      rt::Camera::Create(2000, 1000, pi / 3.0f,
                          rt::ViewTransform(rt::Point3{0.0f, 1.5f, -5.0f},
                                            rt::Point3{0.0f, 1.0f, 0.0f},
                                            rt::Vector3{0.0f, 1.0f, 0.0f}));
+
+  std::cout << "Starting render..." << std::endl;
+  auto t0 = std::chrono::steady_clock::now();
   auto const img = rt::RenderWorld(cam, world);
-  rt::PPMWriter::Write(img, "default_world.ppm");
+  auto t1 = std::chrono::steady_clock::now();
+  auto const ms = std::chrono::duration_cast<std::chrono::milliseconds>(t1-t0);
+  std::cout << "time " << ms.count() << "ms." << std::endl;
+  rt::PPMWriter::Write(img, "default_world_shaded.ppm");
   return EXIT_SUCCESS;
 }

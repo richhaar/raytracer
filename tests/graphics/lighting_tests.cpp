@@ -80,8 +80,7 @@ TEST(Lighting, EyeInPathOfReflectionVector) {
 }
 
 TEST(Lighting, LightBehindSurface) {
-  auto constexpr eye =
-      Vector3{0.0f, 0.0f, -1.0f};
+  auto constexpr eye = Vector3{0.0f, 0.0f, -1.0f};
   auto constexpr normal = Vector3{0.0f, 0.0f, -1.0f};
   auto constexpr light =
       PointLight{ColourRGB::White(), Point3{0.0f, 0.0f, 10.0f}};
@@ -94,9 +93,9 @@ TEST(Lighting, LightBehindSurface) {
 }
 
 TEST(ShadeHit, ShadingIntersection) {
-
   auto const world = DefaultWorld();
-  auto constexpr ray = Ray{Point3{0.0f, 0.0f, -5.0f}, Vector3{0.0f, 0.0f, 1.0f}};
+  auto constexpr ray =
+      Ray{Point3{0.0f, 0.0f, -5.0f}, Vector3{0.0f, 0.0f, 1.0f}};
 
   ASSERT_FALSE(world.objects_.empty());
   auto const& sphere = world.objects_[0];
@@ -122,7 +121,6 @@ TEST(ShadeHit, ShadingIntersectionFromInside) {
           .AddSphere(Scaling(0.5f, 0.5f, 0.5f), Material{})
           .Build();
 
-
   auto constexpr ray = Ray{Point3{0.0f, 0.0f, 0.0f}, Vector3{0.0f, 0.0f, 1.0f}};
 
   auto const& sphere = world.objects_[1];
@@ -138,8 +136,9 @@ TEST(ShadeHit, ShadingIntersectionFromInside) {
 
 TEST(ColourAt, NoIntersectionOnRay) {
   auto const world = DefaultWorld();
-  auto constexpr ray = Ray(Point3{0.0f, 0.0f, -5.0f}, Vector3{0.0f, 1.0f, 0.0f});
-  auto const [r,g,b] = ColourAt(world, ray);
+  auto constexpr ray =
+      Ray(Point3{0.0f, 0.0f, -5.0f}, Vector3{0.0f, 1.0f, 0.0f});
+  auto const [r, g, b] = ColourAt(world, ray);
 
   ASSERT_FLOAT_EQ(r, 0.0f);
   ASSERT_FLOAT_EQ(g, 0.0f);
@@ -148,8 +147,9 @@ TEST(ColourAt, NoIntersectionOnRay) {
 
 TEST(ColourAt, RayHitsSphere) {
   auto const world = DefaultWorld();
-  auto constexpr ray = Ray(Point3{0.0f, 0.0f, -5.0f}, Vector3{0.0f, 0.0f, 1.0f});
-  auto const [r,g,b] = ColourAt(world, ray);
+  auto constexpr ray =
+      Ray(Point3{0.0f, 0.0f, -5.0f}, Vector3{0.0f, 0.0f, 1.0f});
+  auto const [r, g, b] = ColourAt(world, ray);
 
   ASSERT_NEAR(r, 0.38066f, 1e-4f);
   ASSERT_NEAR(g, 0.47583f, 1e-4f);
@@ -159,12 +159,56 @@ TEST(ColourAt, RayHitsSphere) {
 TEST(ColourAt, IntersectionBehindRay) {
   auto const world = DefaultWorld();
 
-  auto constexpr ray = Ray(Point3{0.0f, 0.0f, 0.75f}, Vector3{0.0f, 0.0f, -1.0f});
-  auto const [r,g,b] = ColourAt(world, ray);
+  auto constexpr ray =
+      Ray(Point3{0.0f, 0.0f, 0.75f}, Vector3{0.0f, 0.0f, -1.0f});
+  auto const [r, g, b] = ColourAt(world, ray);
 
   ASSERT_NEAR(r, 0.1f, 1e-5f);
   ASSERT_NEAR(g, 0.1f, 1e-5f);
   ASSERT_NEAR(b, 0.1f, 1e-5f);
+}
+
+TEST(IsShadowed, NoShadow) {
+  auto const world = DefaultWorld();
+  auto constexpr point = Point3{0.0f, 10.0f, 0.0f};
+  ASSERT_FALSE(IsShadowed(world, world.lights_[0], point));
+}
+
+TEST(IsShadowed, InShadow) {
+  auto const world = DefaultWorld();
+  auto constexpr point = Point3{10.0f, -10.0f, 10.0f};
+  ASSERT_TRUE(IsShadowed(world, world.lights_[0], point));
+}
+
+TEST(IsShadowed, PointBehindLightSource) {
+  auto const world = DefaultWorld();
+  auto constexpr point = Point3{-20.0f, 20.0f, -20.0f};
+  ASSERT_FALSE(IsShadowed(world, world.lights_[0], point));
+}
+
+TEST(IsShadowed, PointInFrontOfLightSource) {
+  auto const world = DefaultWorld();
+  auto constexpr point = Point3{-2.0f, 2.0f, -2.0f};
+  ASSERT_FALSE(IsShadowed(world, world.lights_[0], point));
+}
+
+TEST(ShadeHit, InShadow) {
+  WorldBuilder builder;
+  auto const world =
+      builder
+          .AddLight(PointLight{ColourRGB::White(), Point3{0.0f, 0.0f, -10.0f}})
+          .AddSphere(Matrix<4, 4>::Identity(), Material{})
+          .AddSphere(Translation(0.0f, 0.0f, 10.0f), Material{})
+          .Build();
+
+  auto constexpr ray = Ray(Point3(0.0f, 0.0f, 5.0f), Vector3(0.0f, 0.0f, 1.0f));
+  auto const hit = HitRecord(4.0f, world.objects_[1].get());
+  auto const info = CalculateHitInfo(hit, ray);
+  auto const [r, g, b] = ShadeHit(world, info);
+
+  ASSERT_FLOAT_EQ(r, 0.1f);
+  ASSERT_FLOAT_EQ(g, 0.1f);
+  ASSERT_FLOAT_EQ(b, 0.1f);
 }
 
 }  // namespace

@@ -9,10 +9,14 @@
 #include "rt/world/world.h"
 namespace rt {
 
-inline ColourRGB Lighting(Material const& material, PointLight const& light,
-                          Point3 const& point, Vector3 const& eye,
-                          Vector3 const& normal, bool const in_shadow = false) {
-  auto const effective_colour = light.colour * material.colour;
+inline ColourRGB Lighting(Material const& material, Intersectable const& shape,
+                          PointLight const& light, Point3 const& point,
+                          Vector3 const& eye, Vector3 const& normal,
+                          bool const in_shadow = false) {
+  auto const colour = material.pattern
+                          ? material.pattern->ColourAtShape(shape, point)
+                          : material.colour;
+  auto const effective_colour = light.colour * colour;
   auto const light_vec = Normalize(light.position - point);
   auto const eye_vec = Normalize(eye);
   auto const normal_vec = Normalize(normal);
@@ -59,14 +63,14 @@ inline bool IsShadowed(World const& world, PointLight const& light,
 
 inline ColourRGB ShadeHit(World const& world, HitInfo const& hit_info) {
   ColourRGB colour{0.0f, 0.0f, 0.0f};
-  //TODO: investigate needed offset for speckling, previously 2e-3f
-  auto const offset_point = hit_info.point + hit_info.normal * 1e-5f;
+  // TODO: investigate needed offset for speckling, previously 2e-3f
+  auto const offset_point = hit_info.point + hit_info.normal * 2e-3f;
 
   for (auto const& light : world.lights_) {
     auto const in_shade = IsShadowed(world, light, offset_point);
-    colour = colour + Lighting(hit_info.hit.object->GetMaterial(), light,
-                               offset_point, hit_info.eye, hit_info.normal,
-                               in_shade);
+    colour = colour + Lighting(hit_info.hit.object->GetMaterial(),
+                               *hit_info.hit.object, light, offset_point,
+                               hit_info.eye, hit_info.normal, in_shade);
   }
   return colour;
 }

@@ -5,6 +5,7 @@
 
 #include "rt/graphics/lighting.h"
 #include "rt/graphics/material.h"
+#include "rt/graphics/pattern.h"
 #include "rt/math/vector3.h"
 #include "rt/world/point_light.h"
 #include "rt/world/world_builder.h"
@@ -18,7 +19,8 @@ TEST(Lighting, EyeBetweenLightAndSurface) {
   auto constexpr light =
       PointLight{ColourRGB::White(), Point3{0.0f, 0.0f, -10.0f}};
 
-  auto const [r, g, b] = Lighting(Material{}, light, Point3{}, eye, normal);
+  auto const [r, g, b] =
+      Lighting(Material{}, Sphere{}, light, Point3{}, eye, normal);
 
   ASSERT_FLOAT_EQ(r, 1.9f);
   ASSERT_FLOAT_EQ(g, 1.9f);
@@ -32,7 +34,8 @@ TEST(Lighting, EyeOffsetToLightBy45) {
   auto constexpr light =
       PointLight{ColourRGB::White(), Point3{0.0f, 0.0f, -10.0f}};
 
-  auto const [r, g, b] = Lighting(Material{}, light, Point3{}, eye, normal);
+  auto const [r, g, b] =
+      Lighting(Material{}, Sphere{}, light, Point3{}, eye, normal);
 
   ASSERT_FLOAT_EQ(r, 1.0f);
   ASSERT_FLOAT_EQ(g, 1.0f);
@@ -45,7 +48,8 @@ TEST(Lighting, LightOffsetBy45) {
   auto constexpr light =
       PointLight{ColourRGB::White(), Point3{0.0f, 10.0f, -10.0f}};
 
-  auto const [r, g, b] = Lighting(Material{}, light, Point3{}, eye, normal);
+  auto const [r, g, b] =
+      Lighting(Material{}, Sphere{}, light, Point3{}, eye, normal);
 
   ASSERT_NEAR(r, 0.7364f, 1e-5);
   ASSERT_NEAR(g, 0.7364f, 1e-5);
@@ -58,7 +62,8 @@ TEST(Lighting, EyeAndLightOnOppositeSidesOfNormalAt45) {
   auto constexpr light =
       PointLight{ColourRGB::White(), Point3{0.0f, 10.0f, -10.0f}};
 
-  auto const [r, g, b] = Lighting(Material{}, light, Point3{}, eye, normal);
+  auto const [r, g, b] =
+      Lighting(Material{}, Sphere{}, light, Point3{}, eye, normal);
 
   ASSERT_NEAR(r, 0.7364f, 1e-5);
   ASSERT_NEAR(g, 0.7364f, 1e-5);
@@ -72,7 +77,8 @@ TEST(Lighting, EyeInPathOfReflectionVector) {
   auto constexpr light =
       PointLight{ColourRGB::White(), Point3{0.0f, 10.0f, -10.0f}};
 
-  auto const [r, g, b] = Lighting(Material{}, light, Point3{}, eye, normal);
+  auto const [r, g, b] =
+      Lighting(Material{}, Sphere{}, light, Point3{}, eye, normal);
 
   ASSERT_NEAR(r, 1.6364f, 1e-5f);
   ASSERT_NEAR(g, 1.6364f, 1e-5f);
@@ -85,7 +91,8 @@ TEST(Lighting, LightBehindSurface) {
   auto constexpr light =
       PointLight{ColourRGB::White(), Point3{0.0f, 0.0f, 10.0f}};
 
-  auto const [r, g, b] = Lighting(Material{}, light, Point3{}, eye, normal);
+  auto const [r, g, b] =
+      Lighting(Material{}, Sphere{}, light, Point3{}, eye, normal);
 
   ASSERT_FLOAT_EQ(r, 0.1f);
   ASSERT_FLOAT_EQ(g, 0.1f);
@@ -211,5 +218,28 @@ TEST(ShadeHit, InShadow) {
   ASSERT_FLOAT_EQ(b, 0.1f);
 }
 
+TEST(Lighting, ColourWithStripePattern) {
+  auto const pattern =
+      std::make_shared<StripePattern>(ColourRGB::White(), ColourRGB::Black());
+  auto constexpr eye = Vector3{0.0f, 0.0f, -1.0f};
+  auto constexpr normal = Vector3{0.0f, 0.0f, -1.0f};
+  auto constexpr light =
+      PointLight{ColourRGB::White(), Point3{0.0f, 0.0f, -10.0f}};
+  auto const material = Material{
+      .pattern = pattern, .ambient = 1.0f, .diffuse = 0.0f, .specular = 0.0f};
+
+  auto const colour1 = Lighting(material, Sphere{}, light,
+                                Point3{0.9f, 0.0f, 0.0f}, eye, normal);
+  auto const colour2 = Lighting(material, Sphere{}, light,
+                                Point3{1.1f, 0.0f, 0.0f}, eye, normal);
+
+  ASSERT_FLOAT_EQ(colour1.red, 1.0f);
+  ASSERT_FLOAT_EQ(colour1.green, 1.0f);
+  ASSERT_FLOAT_EQ(colour1.blue, 1.0f);
+
+  ASSERT_FLOAT_EQ(colour2.red, 0.0f);
+  ASSERT_FLOAT_EQ(colour2.green, 0.0f);
+  ASSERT_FLOAT_EQ(colour2.blue, 0.0f);
+}
 }  // namespace
 }  // namespace rt

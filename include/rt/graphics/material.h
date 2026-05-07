@@ -2,10 +2,16 @@
 // Licensed under the MIT License
 #ifndef RAYTRACER_MATERIAL_H
 #define RAYTRACER_MATERIAL_H
+#include <memory>
+
 #include "colour_rgb.h"
+#include "pattern.h"
 
 namespace rt {
 struct Material {
+  // TODO: default to SolidRGB pattern
+  std::shared_ptr<Pattern> pattern =  // nullptr;
+      std::make_shared<SolidColour>(ColourRGB::White());
   ColourRGB colour = ColourRGB::White();
   float ambient = 0.1f;
   float diffuse = 0.9f;

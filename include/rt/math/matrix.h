@@ -7,6 +7,9 @@
 #include <cassert>
 #include <cmath>
 #include <numeric>
+#include <stdexcept>
+#include <ostream>
+
 
 #include "rt/math/concepts.h"
 
@@ -102,33 +105,37 @@ template <std::size_t Rows, std::size_t Cols>
 
 template <std::size_t Rows, std::size_t Cols>
 [[nodiscard]] constexpr float Minor(Matrix<Rows, Cols> const& matrix,
-                          std::size_t const row, std::size_t const col) {
+                                    std::size_t const row,
+                                    std::size_t const col) {
   return Determinant(Submatrix(matrix, row, col));
 }
 
 template <std::size_t Rows, std::size_t Cols>
 [[nodiscard]] constexpr float Cofactor(Matrix<Rows, Cols> const& matrix,
-                             std::size_t const row, std::size_t const col) {
+                                       std::size_t const row,
+                                       std::size_t const col) {
   auto const minor = Minor(matrix, row, col);
   return (row + col) % 2 == 0 ? minor : -minor;
 }
 
-template<std::size_t Rows, std::size_t Cols>
-[[nodiscard]] constexpr bool IsSingularMatrix(Matrix<Rows, Cols> const& matrix) {
+template <std::size_t Rows, std::size_t Cols>
+[[nodiscard]] constexpr bool IsSingularMatrix(
+    Matrix<Rows, Cols> const& matrix) {
   auto constexpr epsilon = 1e-6f;
   return std::fabs(Determinant(matrix)) < epsilon;
 }
 
-template<std::size_t Rows, std::size_t Cols>
-[[nodiscard]] constexpr Matrix<Rows, Cols> Inverse(Matrix<Rows, Cols> const& matrix) {
+template <std::size_t Rows, std::size_t Cols>
+[[nodiscard]] constexpr Matrix<Rows, Cols> Inverse(
+    Matrix<Rows, Cols> const& matrix) {
   auto const determinant = Determinant(matrix);
   if (std::fabs(determinant) < 1e-6f) {
     throw std::runtime_error("Attempting to inverse singular matrix.");
   }
 
   auto inverse = Matrix<Rows, Cols>{};
-  for (std::size_t row =0; row<Rows; ++row) {
-    for (std::size_t col=0; col<Cols; ++col) {
+  for (std::size_t row = 0; row < Rows; ++row) {
+    for (std::size_t col = 0; col < Cols; ++col) {
       auto const c = Cofactor(matrix, row, col);
       inverse(col, row) = c / determinant;
     }

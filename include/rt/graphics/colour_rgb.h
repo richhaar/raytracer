@@ -22,6 +22,7 @@ struct ColourRGB {
   static constexpr ColourRGB Red() { return {1.0f, 0.0f, 0.0f}; }
   static constexpr ColourRGB Green() { return {0.0f, 1.0f, 0.0f}; }
   static constexpr ColourRGB Blue() { return {0.0f, 0.0f, 1.0f}; }
+  static constexpr ColourRGB Purple() { return {0.5f, 0.0f, 0.5f}; }
 };
 
 constexpr ColourRGB operator+(ColourRGB const& lhs, ColourRGB const& rhs) {

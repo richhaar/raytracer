@@ -20,14 +20,22 @@ int main() {
   auto builder = rt::WorldBuilder();
   auto constexpr pi = std::numbers::pi_v<float>;
 
-  auto constexpr floor_material =
-      rt::Material{.colour = rt::ColourRGB{1.0f, 0.9f, 0.9f}, .specular = 0.0f};
+  auto const ring_pattern = std::make_shared<rt::CheckerPattern>(
+      rt::ColourRGB{1.0f, 0.9f, 0.9f}, rt::ColourRGB::White());
+  ring_pattern->SetTransform(rt::Translation(0.0f, 0.0f, -5.0f) *
+                             rt::Scaling(0.02f, 0.02f, 0.2f));
+
+  auto const floor_material =
+      rt::Material{.pattern = ring_pattern, .specular = 0.0f};
   auto const world =
       builder
           // Floor
-          .AddPlane(rt::Matrix<4, 4>::Identity(), rt::Material{})
-          .AddPlane(rt::Translation(0.0f, 6.0f, 0.0f),
-                    rt::Material{.colour = rt::ColourRGB{0.0f, 1.0f, 0.0f}})
+          .AddPlane(rt::Matrix<4, 4>::Identity(), floor_material)
+          /*.AddPlane(rt::Translation(0.0f, 0.0f, 10.0f) *
+                        rt::RotateX(std::numbers::pi_v<float> / 2.0f),
+                    rt::Material{.pattern = std::make_shared<rt::StripePattern>(
+                                     rt::ColourRGB{0.0f, 1.0f, 0.0f},
+                                     rt::ColourRGB::Purple())})*/
           /*.AddSphere(rt::Scaling(10.0f, 0.01f, 10.0f), floor_material)
           // Left wall
           .AddSphere(rt::Translation(0.0f, 0.0f, 5.0f) *
@@ -41,13 +49,16 @@ int main() {
                      floor_material)*/
           // Large green sphere
           .AddSphere(rt::Translation(-0.5f, 1.0f, 0.5f),
-                     rt::Material{.colour = rt::ColourRGB{0.1f, 1.0f, 0.5f},
+                     rt::Material{.pattern = ring_pattern,
+                                  // std::make_shared<rt::SolidColour>(
+                                  // rt::ColourRGB{0.1f, 1.0f, 0.5f}),
                                   .diffuse = 0.7f,
                                   .specular = 0.3f})
           // Smaller green sphere
           .AddSphere(rt::Translation(1.5f, 0.5f, -0.5f) *
                          rt::Scaling(0.5f, 0.5f, 0.5f),
-                     rt::Material{.colour = rt::ColourRGB{0.5f, 1.0f, 0.5f},
+                     rt::Material{.pattern = std::make_shared<rt::SolidColour>(
+                                      rt::ColourRGB{0.5f, 1.0f, 0.5f}),
                                   .diffuse = 0.7f,
                                   .specular = 0.3f})
           // Smallest sphere
@@ -62,6 +73,8 @@ int main() {
                                   .diffuse = 0.7f,
                                   .specular = 0.9f})*/
           // Light source
+          /* .AddLight(rt::PointLight{rt::ColourRGB{1.0f, 1.0f, 1.0f},
+                                    rt::Point3{-10.0f, 4.0f, -10.0f}})*/
           .AddLight(rt::PointLight{rt::ColourRGB{0.1f, 0.7f, 0.4f},
                                    rt::Point3{-10.0f, 4.0f, -10.0f}})
           .AddLight(rt::PointLight{rt::ColourRGB{0.4f, 0.1f, 0.4f},
@@ -81,6 +94,6 @@ int main() {
   auto const ms =
       std::chrono::duration_cast<std::chrono::milliseconds>(t1 - t0);
   std::cout << "time " << ms.count() << "ms." << std::endl;
-  rt::PPMWriter::Write(img, "default_world_shaded.ppm");
+  rt::PPMWriter::Write(img, "world.ppm");
   return EXIT_SUCCESS;
 }

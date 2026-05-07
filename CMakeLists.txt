@@ -4,7 +4,8 @@ project("RayTracer")
 
 add_executable(RayTracer src/main.cpp
         src/graphics/ppm_writer.cpp
-        src/world/uuid.cpp)
+        src/world/uuid.cpp
+        src/graphics/pattern.cpp)
 target_include_directories(RayTracer PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
 set_property(TARGET RayTracer PROPERTY CXX_STANDARD 20)
 
@@ -47,6 +48,8 @@ add_executable(RayTracerTest
         tests/world/camera_tests.cpp
         tests/graphics/render_tests.cpp
         tests/world/plane_tests.cpp
+        tests/graphics/pattern_tests.cpp
+        src/graphics/pattern.cpp
 )
 target_include_directories(RayTracerTest PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
 

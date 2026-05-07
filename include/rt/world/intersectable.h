@@ -47,6 +47,9 @@ class Intersectable {
   }
 
   [[nodiscard]] Matrix<4, 4> const& GetTransform() const { return transform_; }
+  [[nodiscard]] Matrix<4, 4> const& GetInverseTransform() const {
+    return inverse_transform_;
+  }
   [[nodiscard]] Material const& GetMaterial() const { return material_; }
   void SetMaterial(Material material) { material_ = std::move(material); }
 };

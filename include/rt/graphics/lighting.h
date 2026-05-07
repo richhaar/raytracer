@@ -53,13 +53,14 @@ inline bool IsShadowed(World const& world, PointLight const& light,
   auto const intersections = IntersectWorld(world, ray);
 
   return std::ranges::any_of(intersections, [&distance](auto const& hit) {
-    return hit.t > 1e-3f && hit.t < distance;
+    return hit.t > 0.0f && hit.t < distance;
   });
 }
 
 inline ColourRGB ShadeHit(World const& world, HitInfo const& hit_info) {
   ColourRGB colour{0.0f, 0.0f, 0.0f};
-  auto const offset_point = hit_info.point + hit_info.normal * 1e-3f;
+  //TODO: investigate needed offset for speckling, previously 2e-3f
+  auto const offset_point = hit_info.point + hit_info.normal * 1e-5f;
 
   for (auto const& light : world.lights_) {
     auto const in_shade = IsShadowed(world, light, offset_point);

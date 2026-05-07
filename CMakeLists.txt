@@ -46,6 +46,7 @@ add_executable(RayTracerTest
         tests/math/view_transform_tests.cpp
         tests/world/camera_tests.cpp
         tests/graphics/render_tests.cpp
+        tests/world/plane_tests.cpp
 )
 target_include_directories(RayTracerTest PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
 

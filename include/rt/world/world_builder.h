@@ -4,9 +4,10 @@
 #define RAYTRACER_WORLD_BUILDER_H
 #include <memory>
 
-#include "point_light.h"
-#include "sphere.h"
-#include "world.h"
+#include "rt/world/plane.h"
+#include "rt/world/point_light.h"
+#include "rt/world/sphere.h"
+#include "rt/world/world.h"
 
 namespace rt {
 class WorldBuilder {
@@ -15,6 +16,15 @@ class WorldBuilder {
  public:
   WorldBuilder& AddLight(PointLight l) {
     world_.lights_.push_back(std::move(l));
+    return *this;
+  }
+
+  WorldBuilder& AddPlane(Matrix<4, 4> const& transform,
+                         Material const& material) {
+    auto plane = std::make_unique<Plane>();
+    plane->SetTransform(transform);
+    plane->SetMaterial(material);
+    world_.objects_.push_back(std::move(plane));
     return *this;
   }
 

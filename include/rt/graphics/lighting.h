@@ -53,23 +53,19 @@ inline bool IsShadowed(World const& world, PointLight const& light,
   auto const intersections = IntersectWorld(world, ray);
 
   return std::ranges::any_of(intersections, [&distance](auto const& hit) {
-    return hit.t >  1e-3f && hit.t < distance;
+    return hit.t > 1e-3f && hit.t < distance;
   });
 }
 
 inline ColourRGB ShadeHit(World const& world, HitInfo const& hit_info) {
-  // TODO move GetMaterial to base class to avoid dynamic cast hack
-
   ColourRGB colour{0.0f, 0.0f, 0.0f};
   auto const offset_point = hit_info.point + hit_info.normal * 1e-3f;
 
   for (auto const& light : world.lights_) {
     auto const in_shade = IsShadowed(world, light, offset_point);
-    colour =
-        colour +
-        Lighting(
-            dynamic_cast<Sphere const*>(hit_info.hit.object)->GetMaterial(),
-            light, offset_point, hit_info.eye, hit_info.normal, in_shade);
+    colour = colour + Lighting(hit_info.hit.object->GetMaterial(), light,
+                               offset_point, hit_info.eye, hit_info.normal,
+                               in_shade);
   }
   return colour;
 }
@@ -77,7 +73,8 @@ inline ColourRGB ShadeHit(World const& world, HitInfo const& hit_info) {
 inline ColourRGB ColourAt(World const& world, Ray const& ray) {
   auto const intersections = IntersectWorld(world, ray);
 
-  auto const iter = std::ranges::upper_bound(intersections, 0.0f, {}, &HitRecord::t);
+  auto const iter =
+      std::ranges::upper_bound(intersections, 0.0f, {}, &HitRecord::t);
   if (iter == intersections.cend()) {
     return ColourRGB::Black();
   }

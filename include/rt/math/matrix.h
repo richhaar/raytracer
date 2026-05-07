@@ -68,7 +68,7 @@ template <std::size_t Rows, std::size_t Cols>
 
 template <std::size_t Rows, std::size_t Cols>
   requires(SquareMatrix<Rows, Cols>)
-[[nodiscard]] float Determinant(Matrix<Rows, Cols> const& matrix) {
+[[nodiscard]] constexpr float Determinant(Matrix<Rows, Cols> const& matrix) {
   if constexpr (Rows == 1 && Cols == 1) {
     return matrix(0, 0);
   } else if constexpr (Rows == 2 && Cols == 2) {

@@ -13,16 +13,13 @@
 namespace rt {
 class Sphere : public NonCopyable, public Intersectable {
   uint64_t uuid_;
-  Matrix<4, 4> transform_{Matrix<4, 4>::Identity()};
-  Material material_;
 
-  [[nodiscard]] std::optional<std::pair<HitRecord, HitRecord>> DoHit(
+  [[nodiscard]] std::optional<std::pair<HitRecord, HitRecord>> LocalHit(
       Ray const& ray) const override {
-    const auto [origin, direction] = Transform(ray, Inverse(transform_));
     auto const sphere_to_ray =
-        origin - Point3(0.0f, 0.0f, 0.0f);  // assume sphere is 0,0,0
-    auto const a = Dot(direction, direction);
-    auto const b = 2.0f * Dot(direction, sphere_to_ray);
+        ray.origin - Point3(0.0f, 0.0f, 0.0f);  // assume sphere is 0,0,0
+    auto const a = Dot(ray.direction, ray.direction);
+    auto const b = 2.0f * Dot(ray.direction, sphere_to_ray);
     auto const c = Dot(sphere_to_ray, sphere_to_ray) - 1.0f;
 
     auto const discriminant = b * b - 4.0f * a * c;
@@ -37,23 +34,13 @@ class Sphere : public NonCopyable, public Intersectable {
     return std::make_pair(HitRecord{t1, this}, HitRecord{t2, this});
   }
 
-  [[nodiscard]] Vector3 DoNormalAt(Point3 const& point) const override {
-    auto const inv_transform = Inverse(GetTransform());
-    auto const object_point = inv_transform * point;
-    auto const object_normal = object_point - Point3{0.0f, 0.0f, 0.0f};
-    auto const world_normal = Transpose(inv_transform) * object_normal;
-    return Normalize(world_normal);
+  [[nodiscard]] Vector3 LocalNormalAt(Point3 const& object_point) const override {
+    return object_point - Point3{0.0f, 0.0f, 0.0f};
   }
 
  public:
   Sphere() : uuid_(Uuid()) {}
 
-  void SetTransform(Matrix<4, 4> const& matrix) { transform_ = matrix; }
-  void SetMaterial(Material const& material) { material_ = material; }
-
-  [[nodiscard]] Material GetMaterial() const { return material_; }
-
-  [[nodiscard]] Matrix<4, 4> GetTransform() const { return transform_; }
   bool operator==(Sphere const& rhs) const { return uuid_ == rhs.uuid_; }
 };
 }  // namespace rt

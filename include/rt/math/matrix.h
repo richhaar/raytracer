@@ -84,7 +84,7 @@ template <std::size_t Rows, std::size_t Cols>
 
 template <std::size_t Rows, std::size_t Cols>
   requires(SubMatrixable<Rows, Cols>)
-[[nodiscard]] Matrix<Rows - 1, Cols - 1> Submatrix(
+[[nodiscard]] constexpr Matrix<Rows - 1, Cols - 1> Submatrix(
     Matrix<Rows, Cols> const& matrix, std::size_t const row,
     std::size_t const col) {
   Matrix<Rows - 1, Cols - 1> submatrix;
@@ -101,26 +101,26 @@ template <std::size_t Rows, std::size_t Cols>
 }
 
 template <std::size_t Rows, std::size_t Cols>
-[[nodiscard]] float Minor(Matrix<Rows, Cols> const& matrix,
+[[nodiscard]] constexpr float Minor(Matrix<Rows, Cols> const& matrix,
                           std::size_t const row, std::size_t const col) {
   return Determinant(Submatrix(matrix, row, col));
 }
 
 template <std::size_t Rows, std::size_t Cols>
-[[nodiscard]] float Cofactor(Matrix<Rows, Cols> const& matrix,
+[[nodiscard]] constexpr float Cofactor(Matrix<Rows, Cols> const& matrix,
                              std::size_t const row, std::size_t const col) {
   auto const minor = Minor(matrix, row, col);
   return (row + col) % 2 == 0 ? minor : -minor;
 }
 
 template<std::size_t Rows, std::size_t Cols>
-[[nodiscard]] bool IsSingularMatrix(Matrix<Rows, Cols> const& matrix) {
+[[nodiscard]] constexpr bool IsSingularMatrix(Matrix<Rows, Cols> const& matrix) {
   auto constexpr epsilon = 1e-6f;
   return std::fabs(Determinant(matrix)) < epsilon;
 }
 
 template<std::size_t Rows, std::size_t Cols>
-[[nodiscard]] Matrix<Rows, Cols> Inverse(Matrix<Rows, Cols> const& matrix) {
+[[nodiscard]] constexpr Matrix<Rows, Cols> Inverse(Matrix<Rows, Cols> const& matrix) {
   auto const determinant = Determinant(matrix);
   if (std::fabs(determinant) < 1e-6f) {
     throw std::runtime_error("Attempting to inverse singular matrix.");
@@ -133,7 +133,6 @@ template<std::size_t Rows, std::size_t Cols>
       inverse(col, row) = c / determinant;
     }
   }
-
   return inverse;
 }
 }  // namespace rt

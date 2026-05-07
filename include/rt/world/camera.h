@@ -14,6 +14,7 @@ struct Camera {
   uint64_t vsize;
   float fov;
   Matrix<4, 4> transform;
+  Matrix<4, 4> inv_transform;
 
   float half_width;
   float half_height;
@@ -34,6 +35,7 @@ struct Camera {
         .vsize = vsize,
         .fov = fov,
         .transform = transform,
+        .inv_transform = Inverse(transform),
         .half_width = half_width,
         .half_height = half_height,
         .pixel_size = pixel_size,
@@ -48,7 +50,7 @@ inline Ray RayForPixel(Camera const& cam, uint64_t const x, uint64_t const y) {
   auto const world_x = cam.half_width - x_offset;
   auto const world_y = cam.half_height - y_offset;
 
-  auto const inv = Inverse(cam.transform);
+  auto const inv = cam.inv_transform;
   auto const pixel = inv * Point3{world_x, world_y, -1.0f};
   auto const origin = inv * Point3{0.0f, 0.0f, 0.0f};
   auto const direction = Normalize(pixel - origin);

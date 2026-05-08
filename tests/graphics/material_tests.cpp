@@ -7,8 +7,9 @@
 namespace rt {
 namespace {
 TEST(Material, DefaultConstruction) {
-  Material material;
-  auto const [r, g, b] = material.colour;
+  Material const material;
+  ASSERT_TRUE(material.pattern);
+  auto const [r, g, b] = material.pattern->ColourAt(Point3{0.0f, 0.0f, 0.0f});
   ASSERT_FLOAT_EQ(r, 1.0f);
   ASSERT_FLOAT_EQ(g, 1.0f);
   ASSERT_FLOAT_EQ(b, 1.0f);

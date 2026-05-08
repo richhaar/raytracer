@@ -17,10 +17,10 @@ struct World {
 };
 
 inline auto IntersectWorld(World const& world, Ray const& ray) {
-  auto const sort_by_t = [](HitRecord const& a, HitRecord const& b) {
+  auto const sort_by_t = [](Intersection const& a, Intersection const& b) {
     return a.t < b.t;
   };
-  std::set<HitRecord, decltype(sort_by_t)> hits(sort_by_t);
+  std::set<Intersection, decltype(sort_by_t)> hits(sort_by_t);
   for (auto const& object : world.objects_) {
     if (auto const intersection = object->Hit(ray); intersection) {
       hits.insert(intersection->first);

@@ -107,8 +107,8 @@ TEST(ShadeHit, ShadingIntersection) {
   ASSERT_FALSE(world.objects_.empty());
   auto const& sphere = world.objects_[0];
 
-  auto const hit = HitRecord{4.0f, sphere.get()};
-  auto const info = CalculateHitInfo(hit, ray);
+  auto const hit = Intersection{4.0f, sphere.get()};
+  auto const info = ComputeSurfaceInteraction(hit, ray);
 
   auto const [r, g, b] = ShadeHit(world, info);
   ASSERT_NEAR(r, 0.38066f, 1e-5f);
@@ -122,7 +122,8 @@ TEST(ShadeHit, ShadingIntersectionFromInside) {
       builder
           .AddLight(PointLight(ColourRGB::White(), Point3(0.0f, 0.25f, 0.0f)))
           .AddSphere(Matrix<4, 4>::Identity(),
-                     Material{.colour = ColourRGB{0.8f, 1.0f, 0.6f},
+                     Material{.pattern = std::make_shared<SolidColour>(
+                                  0.8f, 1.0f, 0.6f),
                               .diffuse = 0.7f,
                               .specular = 0.2f})
           .AddSphere(Scaling(0.5f, 0.5f, 0.5f), Material{})
@@ -132,8 +133,8 @@ TEST(ShadeHit, ShadingIntersectionFromInside) {
 
   auto const& sphere = world.objects_[1];
 
-  auto const hit = HitRecord{0.5f, sphere.get()};
-  auto const info = CalculateHitInfo(hit, ray);
+  auto const hit = Intersection{0.5f, sphere.get()};
+  auto const info = ComputeSurfaceInteraction(hit, ray);
 
   auto const [r, g, b] = ShadeHit(world, info);
   ASSERT_NEAR(r, 0.90498f, 1e-5f);
@@ -209,8 +210,8 @@ TEST(ShadeHit, InShadow) {
           .Build();
 
   auto constexpr ray = Ray(Point3(0.0f, 0.0f, 5.0f), Vector3(0.0f, 0.0f, 1.0f));
-  auto const hit = HitRecord(4.0f, world.objects_[1].get());
-  auto const info = CalculateHitInfo(hit, ray);
+  auto const hit = Intersection(4.0f, world.objects_[1].get());
+  auto const info = ComputeSurfaceInteraction(hit, ray);
   auto const [r, g, b] = ShadeHit(world, info);
 
   ASSERT_FLOAT_EQ(r, 0.1f);
@@ -241,5 +242,92 @@ TEST(Lighting, ColourWithStripePattern) {
   ASSERT_FLOAT_EQ(colour2.green, 0.0f);
   ASSERT_FLOAT_EQ(colour2.blue, 0.0f);
 }
+
+TEST(ReflectiveColour, NonReflectiveMaterial) {
+  auto const world = DefaultWorld();
+  auto const ray = Ray{Point3{0.0f, 0.0f, 0.0f}, Vector3{0.0f, 0.0f, 1.0f}};
+  ASSERT_TRUE(world.objects_.size() > 1);
+  auto const& shape = world.objects_[1];
+  auto const intersection = Intersection(1.0, shape.get());
+  auto const c = ComputeSurfaceInteraction(intersection, ray);
+  auto const [r, g, b] = ReflectedColour(world, c);
+  ASSERT_FLOAT_EQ(r, 0.0f);
+  ASSERT_FLOAT_EQ(g, 0.0f);
+  ASSERT_FLOAT_EQ(b, 0.0f);
+}
+
+TEST(ReflectiveColour, ReflectiveMaterial) {
+  auto world = DefaultWorld();
+  auto plane = std::make_unique<Plane>();
+  plane->SetTransform(Translation(0.0f, -1.0f, 0.0f));
+  plane->SetMaterial(Material{.reflective = 0.5f});
+  world.objects_.push_back(std::move(plane));
+
+  auto const ray =
+      Ray{Point3{0.0f, 0.0f, -3.0f},
+          Vector3{0.0f, -std::sqrt(2.0f) / 2.0f, std::sqrt(2.0f) / 2.0f}};
+  ASSERT_EQ(world.objects_.size(), 3);
+  auto const& shape = world.objects_[2];
+  auto const intersection = Intersection(std::sqrt(2.0f), shape.get());
+  auto const c = ComputeSurfaceInteraction(intersection, ray);
+  auto const [r, g, b] = ReflectedColour(world, c);
+  ASSERT_NEAR(r, 0.19032f, 3e-5f);
+  ASSERT_NEAR(g, 0.2379f, 3e-5f);
+  ASSERT_NEAR(b, 0.14274f, 3e-5f);
+}
+
+TEST(ShadeHit, ReflectiveMaterial) {
+  auto world = DefaultWorld();
+  auto plane = std::make_unique<Plane>();
+  plane->SetTransform(Translation(0.0f, -1.0f, 0.0f));
+  plane->SetMaterial(Material{.reflective = 0.5f});
+  world.objects_.push_back(std::move(plane));
+
+  auto const ray =
+      Ray{Point3{0.0f, 0.0f, -3.0f},
+          Vector3{0.0f, -std::sqrt(2.0f) / 2.0f, std::sqrt(2.0f) / 2.0f}};
+  ASSERT_EQ(world.objects_.size(), 3);
+  auto const& shape = world.objects_[2];
+  auto const intersection = Intersection(std::sqrt(2.0f), shape.get());
+  auto const c = ComputeSurfaceInteraction(intersection, ray);
+  auto const [r, g, b] = ShadeHit(world, c);
+  ASSERT_NEAR(r, 0.87677f, 3e-5f);
+  ASSERT_NEAR(g, 0.92436f, 3e-5f);
+  ASSERT_NEAR(b, 0.82918f, 3e-5f);
+}
+
+TEST(ShadeHit, ColourAtReflectiveRecursion) {
+  auto builder = WorldBuilder{};
+  auto const world =
+      builder.AddLight(PointLight(ColourRGB::White(), Point3{0.0f, 0.0f, 0.0f}))
+          .AddPlane(Translation(0.0f, -1.0f, 0.0f),
+                    Material{.reflective = 1.0f})
+          .AddPlane(Translation(0.0f, 1.0f, 0.0f), Material{.reflective = 1.0f})
+          .Build();
+
+  auto const ray = Ray{Point3{0.0f, 0.0f, 0.0f}, Vector3{0.0f, 1.0f, 0.0f}};
+  ASSERT_NO_THROW(ColourAt(world, ray));
+}
+
+TEST(ReflectedColour, MaxRecusionDepth) {
+  auto world = DefaultWorld();
+  auto plane = std::make_unique<Plane>();
+  plane->SetTransform(Translation(0.0f, -1.0f, 0.0f));
+  plane->SetMaterial(Material{.reflective = 0.5f});
+  world.objects_.push_back(std::move(plane));
+
+  auto const ray =
+      Ray{Point3{0.0f, 0.0f, -3.0f},
+          Vector3{0.0f, -std::sqrt(2.0f) / 2.0f, std::sqrt(2.0f) / 2.0f}};
+  ASSERT_EQ(world.objects_.size(), 3);
+  auto const& shape = world.objects_[2];
+  auto const intersection = Intersection(std::sqrt(2.0f), shape.get());
+  auto const c = ComputeSurfaceInteraction(intersection, ray);
+  auto const [r, g, b] = ReflectedColour(world, c, 0);
+  ASSERT_FLOAT_EQ(r, 0.0f);
+  ASSERT_FLOAT_EQ(g, 0.0f);
+  ASSERT_FLOAT_EQ(b, 0.0f);
+}
+
 }  // namespace
 }  // namespace rt

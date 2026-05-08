@@ -12,11 +12,11 @@ struct Material {
   // TODO: default to SolidRGB pattern
   std::shared_ptr<Pattern> pattern =  // nullptr;
       std::make_shared<SolidColour>(ColourRGB::White());
-  ColourRGB colour = ColourRGB::White();
   float ambient = 0.1f;
   float diffuse = 0.9f;
   float specular = 0.9f;
   float shininess = 200.0f;
+  float reflective = 0.0f;
 };
 }  // namespace rt
 #endif  // RAYTRACER_MATERIAL_H

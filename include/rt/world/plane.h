@@ -7,13 +7,13 @@
 namespace rt {
 class Plane : public Intersectable {
   // TODO:: refactor hit return types
-  [[nodiscard]] std::optional<std::pair<HitRecord, HitRecord>> LocalHit(
+  [[nodiscard]] std::optional<std::pair<Intersection, Intersection>> LocalHit(
       Ray const& ray) const override {
     if (std::abs(ray.direction.y) < 1e-6f) {
       return std::nullopt;
     }
     auto const t = -ray.origin.y / ray.direction.y;
-    return std::make_pair(HitRecord{t, this}, HitRecord{t, this});
+    return std::make_pair(Intersection{t, this}, Intersection{t, this});
   }
 
   [[nodiscard]] Vector3 LocalNormalAt(Point3 const&) const override {

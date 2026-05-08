@@ -9,9 +9,9 @@ namespace rt {
  * @brief Represent a 3-Dimensional vector
  */
 struct Vector3 {
-  float x;
-  float y;
-  float z;
+  float x = 0.0f;
+  float y = 0.0f;
+  float z = 0.0f;
 };
 
 inline Vector3 operator+(Vector3 const& lhs, Vector3 const& rhs) {

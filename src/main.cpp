@@ -17,6 +17,9 @@
 #include "rt/world/world_builder.h"
 
 int main() {
+  std::size_t constexpr kWidth = 8000;
+  std::size_t constexpr kHeight = 4000;
+
   auto builder = rt::WorldBuilder();
   auto constexpr pi = std::numbers::pi_v<float>;
 
@@ -25,17 +28,25 @@ int main() {
   ring_pattern->SetTransform(rt::Translation(0.0f, 0.0f, -5.0f) *
                              rt::Scaling(0.02f, 0.02f, 0.2f));
 
+  auto const wall_pattern = std::make_shared<rt::RingPattern>(
+      rt::ColourRGB{1.0f, 0.9f, 0.9f}, rt::ColourRGB::White());
+  wall_pattern->SetTransform(rt::Translation(0.0f, 0.0f, -5.0f) *
+                             rt::Scaling(0.8f, 0.1f, 0.2f));
+  auto const wall_material = rt::Material{
+      .pattern = wall_pattern, .specular = 1.6f, .reflective = 0.3f};
+
   auto const floor_material =
       rt::Material{.pattern = ring_pattern, .specular = 0.0f};
   auto const world =
       builder
           // Floor
           .AddPlane(rt::Matrix<4, 4>::Identity(), floor_material)
-          /*.AddPlane(rt::Translation(0.0f, 0.0f, 10.0f) *
+          .AddPlane(rt::Translation(0.0f, 0.0f, -20.0f) *
                         rt::RotateX(std::numbers::pi_v<float> / 2.0f),
-                    rt::Material{.pattern = std::make_shared<rt::StripePattern>(
-                                     rt::ColourRGB{0.0f, 1.0f, 0.0f},
-                                     rt::ColourRGB::Purple())})*/
+                    wall_material)
+         /* .AddPlane(rt::Translation(0.0f, 0.0f, 10.0f) *
+                        rt::RotateX(std::numbers::pi_v<float> / 2.0f),
+                    wall_material)*/
           /*.AddSphere(rt::Scaling(10.0f, 0.01f, 10.0f), floor_material)
           // Left wall
           .AddSphere(rt::Translation(0.0f, 0.0f, 5.0f) *
@@ -50,10 +61,12 @@ int main() {
           // Large green sphere
           .AddSphere(rt::Translation(-0.5f, 1.0f, 0.5f),
                      rt::Material{.pattern = ring_pattern,
+
                                   // std::make_shared<rt::SolidColour>(
                                   // rt::ColourRGB{0.1f, 1.0f, 0.5f}),
                                   .diffuse = 0.7f,
-                                  .specular = 0.3f})
+                                  .specular = 0.3f,
+                                  .reflective = 1.0f})
           // Smaller green sphere
           .AddSphere(rt::Translation(1.5f, 0.5f, -0.5f) *
                          rt::Scaling(0.5f, 0.5f, 0.5f),
@@ -82,7 +95,7 @@ int main() {
           .Build();
 
   auto const cam =
-      rt::Camera::Create(2000, 1000, pi / 3.0f,
+      rt::Camera::Create(kWidth, kHeight, pi / 3.0f,
                          rt::ViewTransform(rt::Point3{0.0f, 1.5f, -5.0f},
                                            rt::Point3{0.0f, 1.0f, 0.0f},
                                            rt::Vector3{0.0f, 1.0f, 0.0f}));

@@ -43,6 +43,9 @@ class SolidColour : public Pattern {
  public:
   explicit constexpr SolidColour(ColourRGB const& colour)
       : Pattern(), colour_(colour) {}
+
+  explicit constexpr SolidColour(float const r, float const g, float const b)
+      : Pattern(), colour_(r, g, b) {}
 };
 
 class StripePattern : public Pattern {

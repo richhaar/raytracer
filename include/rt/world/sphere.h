@@ -14,7 +14,7 @@ namespace rt {
 class Sphere : public NonCopyable, public Intersectable {
   uint64_t uuid_;
 
-  [[nodiscard]] std::optional<std::pair<HitRecord, HitRecord>> LocalHit(
+  [[nodiscard]] std::optional<std::pair<Intersection, Intersection>> LocalHit(
       Ray const& ray) const override {
     auto const sphere_to_ray =
         ray.origin - Point3(0.0f, 0.0f, 0.0f);  // assume sphere is 0,0,0
@@ -31,7 +31,7 @@ class Sphere : public NonCopyable, public Intersectable {
     auto const t1 = (-b - std::sqrt(discriminant)) / (2.0f * a);
     auto const t2 = (-b + std::sqrt(discriminant)) / (2.0f * a);
 
-    return std::make_pair(HitRecord{t1, this}, HitRecord{t2, this});
+    return std::make_pair(Intersection{t1, this}, Intersection{t2, this});
   }
 
   [[nodiscard]] Vector3 LocalNormalAt(Point3 const& object_point) const override {

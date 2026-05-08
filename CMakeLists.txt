@@ -39,7 +39,7 @@ add_executable(RayTracerTest
         tests/math/point3_tests.cpp
         tests/math/transforms_tests.cpp
         tests/math/vector3_tests.cpp
-        tests/world/hit_info_tests.cpp
+        tests/world/surface_interaction_tests.cpp
         tests/world/point_light_tests.cpp
         tests/world/ray_tests.cpp
         tests/world/sphere_tests.cpp

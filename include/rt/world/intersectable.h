@@ -5,7 +5,7 @@
 #include <optional>
 #include <utility>
 
-#include "hit_record.h"
+#include "intersection.h"
 #include "rt/graphics/material.h"
 #include "rt/math/matrix_ops.h"
 #include "rt/math/point3.h"
@@ -20,7 +20,7 @@ class Intersectable {
   Matrix<4, 4> inverse_transform_{Matrix<4, 4>::Identity()};
   Material material_{};
 
-  [[nodiscard]] virtual std::optional<std::pair<HitRecord, HitRecord>> LocalHit(
+  [[nodiscard]] virtual std::optional<std::pair<Intersection, Intersection>> LocalHit(
       Ray const& ray) const = 0;
 
   [[nodiscard]] virtual Vector3 LocalNormalAt(Point3 const& point) const = 0;
@@ -28,7 +28,7 @@ class Intersectable {
  public:
   virtual ~Intersectable() = default;
 
-  [[nodiscard]] std::optional<std::pair<HitRecord, HitRecord>> Hit(
+  [[nodiscard]] std::optional<std::pair<Intersection, Intersection>> Hit(
       Ray const& ray) const {
     auto const local_ray = Transform(ray, inverse_transform_);
     return LocalHit(local_ray);

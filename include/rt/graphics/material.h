@@ -9,14 +9,15 @@
 
 namespace rt {
 struct Material {
-  // TODO: default to SolidRGB pattern
-  std::shared_ptr<Pattern> pattern =  // nullptr;
+  std::shared_ptr<Pattern> pattern =
       std::make_shared<SolidColour>(ColourRGB::White());
   float ambient = 0.1f;
   float diffuse = 0.9f;
   float specular = 0.9f;
   float shininess = 200.0f;
   float reflective = 0.0f;
+  float transparency = 0.0f;
+  float refractive_index = 1.0f;
 };
 }  // namespace rt
 #endif  // RAYTRACER_MATERIAL_H

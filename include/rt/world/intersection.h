@@ -11,6 +11,10 @@ struct Intersection {
   Intersectable const* object = nullptr;
 };
 
+inline bool operator==(Intersection const& a, Intersection const& b) {
+  return std::abs(a.t - b.t) < 1e-6f && a.object == b.object;
+}
+
 }  // namespace rt
 
 #endif  // RAYTRACER_INTERSECTION_H

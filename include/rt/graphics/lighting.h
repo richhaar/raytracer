@@ -9,7 +9,6 @@
 #include "rt/world/world.h"
 namespace rt {
 
-inline constexpr float kRaySurfaceOffset = 2e-3f;
 inline constexpr int32_t kMaxReflections = 5;
 
 inline ColourRGB Lighting(Material const& material, Intersectable const& shape,
@@ -63,27 +62,54 @@ inline bool IsShadowed(World const& world, PointLight const& light,
 }
 
 inline ColourRGB ReflectedColour(World const& world,
-                                 SurfaceInteraction const& surface, int32_t remaining = kMaxReflections);
+                                 SurfaceInteraction const& surface,
+                                 int32_t remaining = kMaxReflections);
 
-inline ColourRGB ShadeHit(World const& world,
-                          SurfaceInteraction const& surface, int32_t const remaining = kMaxReflections) {
+inline ColourRGB RefractedColour(World const& world,
+                                 SurfaceInteraction const& surface,
+                                 int32_t const remaining);
+
+inline float Schlick(SurfaceInteraction const& surface);
+
+inline ColourRGB ShadeHit(World const& world, SurfaceInteraction const& surface,
+                          int32_t const remaining = kMaxReflections) {
   ColourRGB colour{0.0f, 0.0f, 0.0f};
-  // TODO: investigate needed offset for speckling, previously 2e-3f
-  auto const offset_point = surface.point + surface.normal * kRaySurfaceOffset;
 
   for (auto const& light : world.lights_) {
-    auto const in_shade = IsShadowed(world, light, offset_point);
+    auto const in_shade = IsShadowed(world, light, surface.over_point);
     colour = colour + Lighting(surface.intersection.object->GetMaterial(),
-                               *surface.intersection.object, light, offset_point,
-                               surface.eye, surface.normal, in_shade);
+                               *surface.intersection.object, light,
+                               surface.over_point, surface.eye, surface.normal,
+                               in_shade);
   }
 
   auto const reflected = ReflectedColour(world, surface, remaining);
-  return colour * (1.0f - surface.intersection.object->GetMaterial().reflective) + reflected;
-  return colour + reflected;
+  auto const refraction = RefractedColour(world, surface, remaining);
+
+  auto const& material = surface.intersection.object->GetMaterial();
+
+  if (material.reflective > 0.0f && material.transparency > 0.0f) {
+    auto const reflectance = Schlick(surface);
+    return colour + reflected * reflectance + (1.0f - reflectance) * refraction;
+  }
+
+  // TODO investigate if solid reflection is nicer or not
+  // return colour * (1.0f
+  // -surface.intersection.object->GetMaterial().transparency) + refraction;
+  // return colour * (1.0f
+  // -surface.intersection.object->GetMaterial().reflective) + reflected;
+
+  // std::cout << "colour: " << colour.red << " " << colour.green << " " <<
+  // colour.blue << std::endl;
+  //  std::cout << "reflected: " << reflected.red << " " << reflected.green << "
+  //  " << reflected.blue << std::endl; std::cout << "refraction: " <<
+  //  refraction.red << " " << refraction.green << " " << refraction.blue <<
+  //  std::endl;
+  return colour + reflected + refraction;
 }
 
-inline ColourRGB ColourAt(World const& world, Ray const& ray, int32_t const remaining = kMaxReflections) {
+inline ColourRGB ColourAt(World const& world, Ray const& ray,
+                          int32_t const remaining = kMaxReflections) {
   auto const intersections = IntersectWorld(world, ray);
 
   auto const iter =
@@ -92,22 +118,79 @@ inline ColourRGB ColourAt(World const& world, Ray const& ray, int32_t const rema
     return ColourRGB::Black();
   }
 
-  auto const info = ComputeSurfaceInteraction(*iter, ray);
+  auto const info = ComputeSurfaceInteraction(*iter, ray, intersections);
   return ShadeHit(world, info, remaining);
 }
 
 inline ColourRGB ReflectedColour(World const& world,
-                                 SurfaceInteraction const& surface, int32_t const remaining) {
-  if (remaining == 0 || surface.intersection.object->GetMaterial().reflective == 0.0f) {
+                                 SurfaceInteraction const& surface,
+                                 int32_t const remaining) {
+  if (remaining == 0 ||
+      surface.intersection.object->GetMaterial().reflective == 0.0f) {
     return {0.0f, 0.0f, 0.0f};
   }
 
-  auto const ray = Ray{surface.point + surface.normal * kRaySurfaceOffset, surface.reflect};
-  auto const colour = ColourAt(world, ray, remaining -1 );
+  auto const ray = Ray{surface.over_point, surface.reflect};
+  auto const colour = ColourAt(world, ray, remaining - 1);
 
   return colour * surface.intersection.object->GetMaterial().reflective;
-
 }
 
+inline ColourRGB RefractedColour(World const& world,
+                                 SurfaceInteraction const& surface,
+                                 int32_t const remaining) {
+  if (remaining == 0 ||
+      surface.intersection.object->GetMaterial().transparency == 0.0f) {
+    // std::cout << "no transparency" << std::endl;
+    return ColourRGB::Black();
+  }
+
+  // Snell's law for checking internal reflection
+  auto const n_ratio = surface.n1 / surface.n2;
+  auto const cos_i = Dot(surface.eye, surface.normal);
+  auto const sin2_t = n_ratio * n_ratio * (1.0f - cos_i * cos_i);
+
+  // std::cout << n_ratio << " " << cos_i << " " << sin2_t << std::endl;
+
+  if (sin2_t > 1.0f) {
+    return ColourRGB::Black();
+  }
+  auto const cos_t = std::sqrt(1.0f - sin2_t);
+  auto const refracted_direction =
+      surface.normal * (n_ratio * cos_i - cos_t) - surface.eye * n_ratio;
+
+  auto const refracted_ray = Ray{surface.under_point, refracted_direction};
+  auto const colour = ColourAt(world, refracted_ray, remaining - 1);
+  // std::cout << "colour from colour at : " << colour.red << " " <<
+  // colour.green << " " << colour.blue << " with transparency" <<
+  // surface.intersection.object->GetMaterial().transparency << std::endl;
+
+  auto const mult =
+      colour * surface.intersection.object->GetMaterial().transparency;
+  // std::cout << "mult : " << mult.red << " " << mult.green << " " << mult.blue
+  // << std::endl;
+
+  return colour * surface.intersection.object->GetMaterial().transparency;
+}
+
+inline float Schlick(SurfaceInteraction const& surface) {
+  auto cos = Dot(surface.eye, surface.normal);
+
+  if (surface.n1 > surface.n2) {
+    auto const n = surface.n1 / surface.n2;
+    auto const sin2_t = n * n * (1.0f - cos * cos);
+      if (sin2_t > 1.0f) {
+        return 1.0f;
+      }
+
+    auto const cos_t = std::sqrt(1.0f - sin2_t);
+    cos = cos_t;
+  }
+
+  auto const r0 = std::pow((surface.n1 - surface.n2) / (surface.n1 + surface.n2), 2.0f);
+  return r0 + (1.0f - r0) * std::pow(1.0f - cos, 5.0f);
+
+  return 0.0f;
+}
 }  // namespace rt
 #endif  // RAYTRACER_LIGHTING_H

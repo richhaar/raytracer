@@ -17,17 +17,17 @@ struct World {
 };
 
 inline auto IntersectWorld(World const& world, Ray const& ray) {
-  auto const sort_by_t = [](Intersection const& a, Intersection const& b) {
-    return a.t < b.t;
-  };
-  std::set<Intersection, decltype(sort_by_t)> hits(sort_by_t);
+  std::vector<Intersection> hits;
+  hits.reserve(world.objects_.size() * 2);
+
   for (auto const& object : world.objects_) {
-    if (auto const intersection = object->Hit(ray); intersection) {
-      hits.insert(intersection->first);
-      hits.insert(intersection->second);
+    if (auto const xs = object->Hit(ray); xs) {
+      hits.push_back(xs->first);
+      hits.push_back(xs->second);
     }
   }
 
+  std::ranges::sort(hits, {}, &Intersection::t);
   return hits;
 }
 }  // namespace rt

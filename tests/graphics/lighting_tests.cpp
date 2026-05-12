@@ -329,5 +329,208 @@ TEST(ReflectedColour, MaxRecusionDepth) {
   ASSERT_FLOAT_EQ(b, 0.0f);
 }
 
+TEST(RefractedColour, OpaqueSurfaceReturnsBlack) {
+  auto const world = DefaultWorld();
+  auto constexpr ray =
+      Ray{Point3{0.0f, 0.0f, -5.0f}, Vector3{0.0f, 0.0f, 1.0f}};
+  std::vector<Intersection> intersections{{4.0f, world.objects_[0].get()},
+                                          {6.0f, world.objects_[0].get()}};
+
+  auto const surface =
+      ComputeSurfaceInteraction(intersections[0], ray, intersections);
+  auto const [r, g, b] = RefractedColour(world, surface, 5);
+  ASSERT_FLOAT_EQ(r, 0.0f);
+  ASSERT_FLOAT_EQ(g, 0.0f);
+  ASSERT_FLOAT_EQ(b, 0.0f);
+}
+
+TEST(RefractedColour, MaxDepthReturnsBlack) {
+  auto const world = DefaultWorld();
+  world.objects_[0]->SetMaterial(
+      Material{.transparency = 1.0f, .refractive_index = 1.5f});
+  auto constexpr ray =
+      Ray{Point3{0.0f, 0.0f, -5.0f}, Vector3{0.0f, 0.0f, 1.0f}};
+  std::vector<Intersection> intersections{{4.0f, world.objects_[0].get()},
+                                          {6.0f, world.objects_[0].get()}};
+
+  auto const surface =
+      ComputeSurfaceInteraction(intersections[0], ray, intersections);
+  auto const [r, g, b] = RefractedColour(world, surface, 0);
+  ASSERT_FLOAT_EQ(r, 0.0f);
+  ASSERT_FLOAT_EQ(g, 0.0f);
+  ASSERT_FLOAT_EQ(b, 0.0f);
+}
+
+TEST(RefractedColour, TotalInternalReflection) {
+  auto const world = DefaultWorld();
+  world.objects_[0]->SetMaterial(
+      Material{.transparency = 1.0f, .refractive_index = 1.5f});
+  auto const ray = Ray{Point3{0.0f, 0.0f, std::sqrt(2.0f) / 2.0f},
+                       Vector3{0.0f, 1.0f, 0.0f}};
+
+  std::vector<Intersection> intersections{
+      {-std::sqrt(2.0f) / 2.0f, world.objects_[0].get()},
+      {std::sqrt(2.0f) / 2.0f, world.objects_[0].get()}};
+
+  auto const surface =
+      ComputeSurfaceInteraction(intersections[1], ray, intersections);
+  auto const [r, g, b] = RefractedColour(world, surface, 5);
+  ASSERT_FLOAT_EQ(r, 0.0f);
+  ASSERT_FLOAT_EQ(g, 0.0f);
+  ASSERT_FLOAT_EQ(b, 0.0f);
+}
+
+class TestPattern : public Pattern {
+  [[nodiscard]] ColourRGB LocalColorAt(Point3 const& point) const override {
+    return ColourRGB{point.x, point.y, point.z};
+  }
+
+ public:
+  constexpr TestPattern() : Pattern() {}
+};
+
+TEST(RefractedColour, CorrectRefractedColour) {
+  auto const world = DefaultWorld();
+  world.objects_[0]->SetMaterial(
+      Material{.pattern = std::make_unique<TestPattern>(), .ambient = 1.0f});
+  world.objects_[1]->SetMaterial(
+      Material{.transparency = 1.0f, .refractive_index = 1.5f});
+
+  auto const ray = Ray{Point3{0.0f, 0.0f, 0.1f}, Vector3{0.0f, 1.0f, 0.0f}};
+
+  std::vector<Intersection> const intersections{
+      {-0.9899f, world.objects_[0].get()},
+      {-0.4899f, world.objects_[1].get()},
+      {0.4899f, world.objects_[1].get()},
+      {0.9899f, world.objects_[0].get()},
+  };
+
+  auto const surface =
+      ComputeSurfaceInteraction(intersections[2], ray, intersections);
+  auto const [r, g, b] = RefractedColour(world, surface, 5);
+  ASSERT_FLOAT_EQ(r, 0.0f);
+  ASSERT_NEAR(g, 0.99888f, 4e-5f);
+  ASSERT_NEAR(b, 0.04725f, 4e-4f);
+}
+
+TEST(ShadeHit, RefractedColour) {
+  WorldBuilder builder;
+  // Default world with extra transparent plane and an extra coloured sphere
+  auto const world =
+      builder
+          .AddLight(
+              PointLight(ColourRGB::White(), Point3(-10.0f, 10.0f, -10.0f)))
+          .AddSphere(Matrix<4, 4>::Identity(),
+                     Material{.pattern = std::make_shared<SolidColour>(
+                                  ColourRGB(0.8f, 1.0f, 0.6f)),
+                              .diffuse = 0.7f,
+                              .specular = 0.2f})
+          .AddSphere(Scaling(0.5f, 0.5f, 0.5f), Material{})
+          .AddPlane(Translation(0.0f, -1.0f, 0.0f),
+                    Material{.transparency = 0.5f, .refractive_index = 1.5f})
+          .AddSphere(Translation(0.0f, -3.5f, -0.5f),
+                     Material{.pattern = std::make_shared<SolidColour>(
+                                  1.0f, 0.0f, 0.0f),
+                              .ambient = 0.5f})
+          .Build();
+
+  auto const ray =
+      Ray{Point3{0.0f, 0.0f, -3.0f},
+          Vector3{0.0f, -std::sqrt(2.0f) / 2.0f, std::sqrt(2.0f) / 2.0f}};
+
+  std::vector<Intersection> const intersections{
+      {std::sqrt(2.0f), world.objects_[2].get()}};
+
+  auto const surface =
+      ComputeSurfaceInteraction(intersections[0], ray, intersections);
+  auto const [r, g, b] = ShadeHit(world, surface, 5);
+
+  EXPECT_NEAR(r, 0.93642f, 1e-5f);
+  EXPECT_NEAR(g, 0.68642f, 1e-5f);
+  EXPECT_NEAR(b, 0.68642f, 1e-5f);
+}
+
+TEST(Schlik, TotalInternalReflection) {
+  auto sphere = Sphere{};
+  sphere.SetMaterial(Material{.transparency = 1.0f, .refractive_index = 1.5f});
+
+  auto const ray = Ray{Point3{0.0f, 0.0f, std::sqrt(2.0f) / 2.0f},
+                       Vector3{0.0f, 1.0f, 0.0f}};
+  std::vector<Intersection> const intersections{
+      {-std::sqrt(2.0f) / 2.0f, &sphere},
+      {std::sqrt(2.0f) / 2.0f, &sphere},
+  };
+
+  auto const surface =
+      ComputeSurfaceInteraction(intersections[1], ray, intersections);
+  ASSERT_FLOAT_EQ(Schlick(surface), 1.0f);
+}
+
+TEST(Schlik, ReflectanceOfPerpendicularRay) {
+  auto sphere = Sphere{};
+  sphere.SetMaterial(Material{.transparency = 1.0f, .refractive_index = 1.5f});
+
+  auto const ray = Ray{Point3{0.0f, 0.0f, 0.0f}, Vector3{0.0f, 1.0f, 0.0f}};
+  std::vector<Intersection> const intersections{
+      {-1.0f, &sphere},
+      {1.0f, &sphere},
+  };
+
+  auto const surface =
+      ComputeSurfaceInteraction(intersections[1], ray, intersections);
+  ASSERT_FLOAT_EQ(Schlick(surface), 0.04f);
+}
+
+TEST(Schlik, SmallAngleGreaterN2) {
+  auto sphere = Sphere{};
+  sphere.SetMaterial(Material{.transparency = 1.0f, .refractive_index = 1.5f});
+
+  auto const ray = Ray{Point3{0.0f, 0.99f, -2.0f}, Vector3{0.0f, 0.0f, 1.0f}};
+  std::vector<Intersection> const intersections{
+        {1.8589f, &sphere}
+    };
+
+  auto const surface =
+      ComputeSurfaceInteraction(intersections[0], ray, intersections);
+  ASSERT_NEAR(Schlick(surface), 0.48873f, 1e-5f);
+}
+
+TEST(ShadeHit, RefractedAndReflectiveColour) {
+  WorldBuilder builder;
+  // Default world with extra transparent plane and an extra coloured sphere
+  auto const world =
+      builder
+          .AddLight(
+              PointLight(ColourRGB::White(), Point3(-10.0f, 10.0f, -10.0f)))
+          .AddSphere(Matrix<4, 4>::Identity(),
+                     Material{.pattern = std::make_shared<SolidColour>(
+                                  ColourRGB(0.8f, 1.0f, 0.6f)),
+                              .diffuse = 0.7f,
+                              .specular = 0.2f})
+          .AddSphere(Scaling(0.5f, 0.5f, 0.5f), Material{})
+          .AddPlane(Translation(0.0f, -1.0f, 0.0f),
+                    Material{.reflective = 0.5f, .transparency = 0.5f, .refractive_index = 1.5f})
+          .AddSphere(Translation(0.0f, -3.5f, -0.5f),
+                     Material{.pattern = std::make_shared<SolidColour>(
+                                  1.0f, 0.0f, 0.0f),
+                              .ambient = 0.5f})
+          .Build();
+
+  auto const ray =
+      Ray{Point3{0.0f, 0.0f, -3.0f},
+          Vector3{0.0f, -std::sqrt(2.0f) / 2.0f, std::sqrt(2.0f) / 2.0f}};
+
+  std::vector<Intersection> const intersections{
+        {std::sqrt(2.0f), world.objects_[2].get()}};
+
+  auto const surface =
+      ComputeSurfaceInteraction(intersections[0], ray, intersections);
+  auto const [r, g, b] = ShadeHit(world, surface, 5);
+
+  EXPECT_NEAR(r, 0.93391f, 1e-5f);
+  EXPECT_NEAR(g, 0.69643f, 1e-5f);
+  EXPECT_NEAR(b, 0.69243f, 1e-5f);
+}
+
 }  // namespace
 }  // namespace rt

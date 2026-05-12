@@ -17,8 +17,8 @@
 #include "rt/world/world_builder.h"
 
 int main() {
-  std::size_t constexpr kWidth = 8000;
-  std::size_t constexpr kHeight = 4000;
+  std::size_t constexpr kWidth = 800;
+  std::size_t constexpr kHeight = 400;
 
   auto builder = rt::WorldBuilder();
   auto constexpr pi = std::numbers::pi_v<float>;
@@ -39,7 +39,27 @@ int main() {
       rt::Material{.pattern = ring_pattern, .specular = 0.0f};
   auto const world =
       builder
-          // Floor
+  .AddSphere(rt::Translation(0.0f, 1.2f, 1.5f), rt::Material{.transparency = 1.0f, .refractive_index = 1.5f})
+  .AddPlane(rt::Translation(0.0f, 0.0f, 10.0f) *
+                        rt::RotateX(std::numbers::pi_v<float> / 2.0f), rt::Material{.pattern = std::make_shared<rt::CheckerPattern>(rt::ColourRGB::Black(), rt::ColourRGB::White())})
+  .AddLight(rt::PointLight{rt::ColourRGB{0.9f, 0.9f, 0.9f},
+                          rt::Point3{10.0f, 4.0f, -10.0f}})
+  .AddSphere(rt::Translation(0.3f, 0.5f, 5.5f) *
+                         rt::Scaling(0.5f, 0.5f, 0.5f),
+                     rt::Material{.pattern = std::make_shared<rt::SolidColour>(
+                                      rt::ColourRGB{0.5f, 1.0f, 0.5f}),
+                                  .diffuse = 0.7f,
+                                  .specular = 0.3f})
+  .AddSphere(rt::Translation(2.3f, 0.5f, 5.5f) *
+                       rt::Scaling(0.5f, 0.5f, 0.5f),
+                   rt::Material{.pattern = std::make_shared<rt::SolidColour>(
+                                    rt::ColourRGB{0.5f, 1.0f, 0.5f}),
+                                .diffuse = 0.7f,
+                                .specular = 0.3f})
+  .Build();
+
+  builder
+  // Floor
           .AddPlane(rt::Matrix<4, 4>::Identity(), floor_material)
           .AddPlane(rt::Translation(0.0f, 0.0f, -20.0f) *
                         rt::RotateX(std::numbers::pi_v<float> / 2.0f),
@@ -48,6 +68,7 @@ int main() {
                         rt::RotateX(std::numbers::pi_v<float> / 2.0f),
                     wall_material)*/
           /*.AddSphere(rt::Scaling(10.0f, 0.01f, 10.0f), floor_material)
+           */
           // Left wall
           .AddSphere(rt::Translation(0.0f, 0.0f, 5.0f) *
                          rt::RotateY(-pi / 4.0f) * rt::RotateX(pi / 2.0f) *
@@ -57,34 +78,35 @@ int main() {
           .AddSphere(rt::Translation(0.0f, 0.0f, 5.0f) *
                          rt::RotateY(pi / 4.0f) * rt::RotateX(pi / 2.0f) *
                          rt::Scaling(10.0f, 0.01f, 10.0f),
-                     floor_material)*/
+                     floor_material)
           // Large green sphere
           .AddSphere(rt::Translation(-0.5f, 1.0f, 0.5f),
-                     rt::Material{.pattern = ring_pattern,
+                     rt::Material{.pattern = std::make_shared<rt::SolidColour>(rt::ColourRGB::White()),
 
                                   // std::make_shared<rt::SolidColour>(
                                   // rt::ColourRGB{0.1f, 1.0f, 0.5f}),
-                                  .diffuse = 0.7f,
-                                  .specular = 0.3f,
-                                  .reflective = 1.0f})
+                                 /* .diffuse = 0.7f,
+                                  .specular = 0.3f,*/
+                       .transparency = 1.0f,
+                                  .refractive_index = 1.5f})
           // Smaller green sphere
-          .AddSphere(rt::Translation(1.5f, 0.5f, -0.5f) *
+         /* .AddSphere(rt::Translation(-0.5f, 1.5f, 4.5f) *
                          rt::Scaling(0.5f, 0.5f, 0.5f),
                      rt::Material{.pattern = std::make_shared<rt::SolidColour>(
                                       rt::ColourRGB{0.5f, 1.0f, 0.5f}),
                                   .diffuse = 0.7f,
-                                  .specular = 0.3f})
+                                  .specular = 0.3f})*/
           // Smallest sphere
-          /*.AddSphere(rt::Translation(-1.5f, 0.33f, -0.75f) *
+          .AddSphere(rt::Translation(-1.5f, 0.33f, -0.75f) *
                          rt::Scaling(0.33f, 0.33f, 0.33f),
-                     rt::Material{.colour = rt::ColourRGB{1.0f, 0.8f, 0.1f},
+                     rt::Material{.pattern = std::make_shared<rt::SolidColour>(rt::ColourRGB{1.0f, 0.8f, 0.1f}),
                                   .diffuse = 0.7f,
                                   .specular = 0.9f})
           .AddSphere(rt::Translation(-2.5f, 0.33f, -0.75f) *
                          rt::Scaling(0.33f, 0.33f, 0.33f),
-                     rt::Material{.colour = rt::ColourRGB{1.0f, 0.8f, 0.1f},
+                     rt::Material{.pattern = std::make_shared<rt::SolidColour>(rt::ColourRGB{1.0f, 0.8f, 0.1f}),
                                   .diffuse = 0.7f,
-                                  .specular = 0.9f})*/
+                                  .specular = 0.9f})
           // Light source
           /* .AddLight(rt::PointLight{rt::ColourRGB{1.0f, 1.0f, 1.0f},
                                     rt::Point3{-10.0f, 4.0f, -10.0f}})*/

@@ -9,12 +9,12 @@
 #include "rt/world/world.h"
 namespace rt {
 
-inline constexpr int32_t kMaxReflections = 5;
+inline constexpr int32_t kMaxReflections = 15;
 
 inline ColourRGB Lighting(Material const& material, Intersectable const& shape,
                           PointLight const& light, Point3 const& point,
                           Vector3 const& eye, Vector3 const& normal,
-                          bool const in_shadow = false) {
+                          float const shadow_attentuation = 1.0f) {
   auto const effective_colour =
       light.colour * material.pattern->ColourAtShape(shape, point);
   auto const light_vec = Normalize(light.position - point);
@@ -23,9 +23,9 @@ inline ColourRGB Lighting(Material const& material, Intersectable const& shape,
 
   auto const ambient = effective_colour * material.ambient;
 
-  if (in_shadow) {
+ /* if (in_shadow) {
     return ambient;
-  }
+  }*/
 
   auto const light_dot_normal = Dot(light_vec, normal_vec);
   if (light_dot_normal <= 0.0f) {
@@ -43,7 +43,35 @@ inline ColourRGB Lighting(Material const& material, Intersectable const& shape,
     specular = light.colour * material.specular * factor;
   }
 
-  return ambient + diffuse + specular;
+  return ambient + diffuse * shadow_attentuation + specular * shadow_attentuation;
+}
+
+inline float ShadowAttenuation(World const& world, PointLight const& light,
+                               Point3 const& point) {
+  auto const vec = light.position - point;
+  auto const distance = Length(vec);
+  auto const direction = Normalize(vec);
+
+  auto ray = Ray(point, direction);
+  auto intersections = IntersectWorld(world, ray);
+
+  float attenuation = 1.0f;
+
+  for (auto const& hit : intersections) {
+    if (hit.t <= 0.0f || hit.t >= distance) {
+      continue;
+    }
+
+    auto const& material = hit.object->GetMaterial();
+
+    if (material.transparency <= 0.0f) {
+      return 0.0f;
+    }
+
+    attenuation *= material.transparency;
+  }
+
+  return attenuation;
 }
 
 inline bool IsShadowed(World const& world, PointLight const& light,
@@ -76,11 +104,12 @@ inline ColourRGB ShadeHit(World const& world, SurfaceInteraction const& surface,
   ColourRGB colour{0.0f, 0.0f, 0.0f};
 
   for (auto const& light : world.lights_) {
-    auto const in_shade = IsShadowed(world, light, surface.over_point);
+    //auto const in_shade = IsShadowed(world, light, surface.over_point);
+    auto const attentuation = ShadowAttenuation(world, light, surface.over_point);
     colour = colour + Lighting(surface.intersection.object->GetMaterial(),
                                *surface.intersection.object, light,
                                surface.over_point, surface.eye, surface.normal,
-                               in_shade);
+                               attentuation);
   }
 
   auto const reflected = ReflectedColour(world, surface, remaining);
@@ -141,7 +170,6 @@ inline ColourRGB RefractedColour(World const& world,
                                  int32_t const remaining) {
   if (remaining == 0 ||
       surface.intersection.object->GetMaterial().transparency == 0.0f) {
-    // std::cout << "no transparency" << std::endl;
     return ColourRGB::Black();
   }
 
@@ -150,25 +178,16 @@ inline ColourRGB RefractedColour(World const& world,
   auto const cos_i = Dot(surface.eye, surface.normal);
   auto const sin2_t = n_ratio * n_ratio * (1.0f - cos_i * cos_i);
 
-  // std::cout << n_ratio << " " << cos_i << " " << sin2_t << std::endl;
-
   if (sin2_t > 1.0f) {
     return ColourRGB::Black();
   }
+
   auto const cos_t = std::sqrt(1.0f - sin2_t);
   auto const refracted_direction =
       surface.normal * (n_ratio * cos_i - cos_t) - surface.eye * n_ratio;
 
   auto const refracted_ray = Ray{surface.under_point, refracted_direction};
   auto const colour = ColourAt(world, refracted_ray, remaining - 1);
-  // std::cout << "colour from colour at : " << colour.red << " " <<
-  // colour.green << " " << colour.blue << " with transparency" <<
-  // surface.intersection.object->GetMaterial().transparency << std::endl;
-
-  auto const mult =
-      colour * surface.intersection.object->GetMaterial().transparency;
-  // std::cout << "mult : " << mult.red << " " << mult.green << " " << mult.blue
-  // << std::endl;
 
   return colour * surface.intersection.object->GetMaterial().transparency;
 }

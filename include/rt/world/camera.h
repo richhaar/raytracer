@@ -43,7 +43,7 @@ struct Camera {
   }
 };
 
-inline Ray RayForPixel(Camera const& cam, uint64_t const x, uint64_t const y) {
+inline Ray RayForPixel(Camera const& cam, float const x, float const y) {
   auto const x_offset = (static_cast<float>(x) + 0.5f) * cam.pixel_size;
   auto const y_offset = (static_cast<float>(y) + 0.5f) * cam.pixel_size;
 

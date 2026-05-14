@@ -12,8 +12,8 @@ namespace rt {
 
 
 inline Canvas RenderWorld(Camera const& cam, World const& world) {
-  constexpr int spp_side = 5;
-  constexpr int samples_per_pixel = spp_side * spp_side;
+  constexpr int32_t spp_side = 2;
+  constexpr int32_t samples_per_pixel = spp_side * spp_side;
 
   std::mt19937 rng(12345);
   std::uniform_real_distribution<float> dist(0.0f, 1.0f);
@@ -24,10 +24,10 @@ inline Canvas RenderWorld(Camera const& cam, World const& world) {
     for (uint64_t x = 0; x < cam.hsize; ++x) {
       ColourRGB sum = ColourRGB::Black();
 
-      for (int sy = 0; sy < spp_side; ++sy) {
-        for (int sx = 0; sx < spp_side; ++sx) {
-          float u = (static_cast<float>(sx) + dist(rng)) / spp_side;
-          float v = (static_cast<float>(sy) + dist(rng)) / spp_side;
+      for (int32_t sy = 0; sy < spp_side; ++sy) {
+        for (int32_t sx = 0; sx < spp_side; ++sx) {
+          auto const u = (static_cast<float>(sx) + dist(rng)) / spp_side;
+          auto const v = (static_cast<float>(sy) + dist(rng)) / spp_side;
 
           auto const ray = RayForPixel(cam, static_cast<float>(x) + u,
                                             static_cast<float>(y) + v);
@@ -41,19 +41,6 @@ inline Canvas RenderWorld(Camera const& cam, World const& world) {
 
   return img;
 }
-/*
-inline Canvas RenderWorld(Camera const& cam, World const& world) {
-  auto img = Canvas(cam.hsize, cam.vsize);
-
-  for (uint64_t y = 0ULL; y < cam.vsize - 1ULL; ++y) {
-    for (uint64_t x = 0ULL; x < cam.hsize - 1ULL; ++x) {
-      auto const ray = RayForPixel(cam, x, y);
-      auto const colour = ColourAt(world, ray);
-      img.Write(x, y, colour);
-    }
-  }
-  return img;
-}*/
 }  // namespace rt
 
 #endif  // RAYTRACER_RENDER_H

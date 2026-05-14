@@ -9,12 +9,12 @@
 #include "rt/world/world.h"
 namespace rt {
 
-inline constexpr int32_t kMaxReflections = 15;
+inline constexpr int32_t kMaxReflections = 5;
 
 inline ColourRGB Lighting(Material const& material, Intersectable const& shape,
                           PointLight const& light, Point3 const& point,
                           Vector3 const& eye, Vector3 const& normal,
-                          float const shadow_attentuation = 1.0f) {
+                          float const shadow_attenuation = 1.0f) {
   auto const effective_colour =
       light.colour * material.pattern->ColourAtShape(shape, point);
   auto const light_vec = Normalize(light.position - point);
@@ -43,7 +43,7 @@ inline ColourRGB Lighting(Material const& material, Intersectable const& shape,
     specular = light.colour * material.specular * factor;
   }
 
-  return ambient + diffuse * shadow_attentuation + specular * shadow_attentuation;
+  return ambient + diffuse * shadow_attenuation + specular * shadow_attenuation;
 }
 
 inline float ShadowAttenuation(World const& world, PointLight const& light,
@@ -122,18 +122,6 @@ inline ColourRGB ShadeHit(World const& world, SurfaceInteraction const& surface,
     return colour + reflected * reflectance + (1.0f - reflectance) * refraction;
   }
 
-  // TODO investigate if solid reflection is nicer or not
-  // return colour * (1.0f
-  // -surface.intersection.object->GetMaterial().transparency) + refraction;
-  // return colour * (1.0f
-  // -surface.intersection.object->GetMaterial().reflective) + reflected;
-
-  // std::cout << "colour: " << colour.red << " " << colour.green << " " <<
-  // colour.blue << std::endl;
-  //  std::cout << "reflected: " << reflected.red << " " << reflected.green << "
-  //  " << reflected.blue << std::endl; std::cout << "refraction: " <<
-  //  refraction.red << " " << refraction.green << " " << refraction.blue <<
-  //  std::endl;
   return colour + reflected + refraction;
 }
 
@@ -208,8 +196,6 @@ inline float Schlick(SurfaceInteraction const& surface) {
 
   auto const r0 = std::pow((surface.n1 - surface.n2) / (surface.n1 + surface.n2), 2.0f);
   return r0 + (1.0f - r0) * std::pow(1.0f - cos, 5.0f);
-
-  return 0.0f;
 }
 }  // namespace rt
 #endif  // RAYTRACER_LIGHTING_H

@@ -2,9 +2,10 @@
 // Licensed under the MIT License
 #ifndef RAYTRACER_VIEW_TRANSFORM_H
 #define RAYTRACER_VIEW_TRANSFORM_H
-#include "matrix.h"
-#include "matrix_ops.h"
-#include "point3.h"
+#include "rt/math/matrix.h"
+#include "rt/math/matrix_ops.h"
+#include "rt/math/point3.h"
+#include "rt/math/transforms.h"
 
 namespace rt {
 inline Matrix<4, 4> ViewTransform(Point3 const& from, Point3 const& to,

@@ -2,6 +2,8 @@
 // Licensed under the MIT License
 #ifndef RAYTRACER_SURFACE_INTERACTION_H
 #define RAYTRACER_SURFACE_INTERACTION_H
+#include <vector>
+
 #include "intersection.h"
 #include "ray.h"
 #include "rt/math/point3.h"

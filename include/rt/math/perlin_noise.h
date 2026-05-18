@@ -10,7 +10,7 @@
 namespace rt {
 
 class PerlinNoise {
-  static constexpr std::array<int, 512> p = {
+  static constexpr std::array<std::size_t, 512> p = {
       151, 160, 137, 91,  90,  15,  131, 13,  201, 95,  96,  53,  194, 233, 7,
       225, 140, 36,  103, 30,  69,  142, 8,   99,  37,  240, 21,  10,  23,  190,
       6,   148, 247, 120, 234, 75,  0,   26,  197, 62,  94,  252, 219, 203, 117,
@@ -47,11 +47,16 @@ class PerlinNoise {
       93,  222, 114, 67,  29,  24,  72,  243, 141, 128, 195, 78,  66,  215, 61,
       156, 180};
 
-  static double Fade(double t) { return t * t * t * (t * (t * 6 - 15) + 10); }
-  static double Lerp(double t, double a, double b) { return a + t * (b - a); }
-  static double Grad(int hash, double x, double y, double z) {
-    int h = hash & 15;         // CONVERT LO 4 BITS OF HASH CODE
-    double u = h < 8 ? x : y,  // INTO 12 GRADIENT DIRECTIONS.
+  static float Fade(float const t) {
+    return t * t * t * (t * (t * 6 - 15) + 10);
+  }
+  static float Lerp(float const t, float const a, float const b) {
+    return a + t * (b - a);
+  }
+  static float Grad(std::size_t const hash, float const x, float const y,
+                    float const z) {
+    auto const h = hash & 15;      // CONVERT LO 4 BITS OF HASH CODE
+    auto const u = h < 8 ? x : y,  // INTO 12 GRADIENT DIRECTIONS.
         v = h < 4                ? y
             : h == 12 || h == 14 ? x
                                  : z;
@@ -59,19 +64,22 @@ class PerlinNoise {
   }
 
  public:
-  static double Noise(double x, double y, double z) {
-    int X = (int)std::floor(x) & 255,  // FIND UNIT CUBE THAT
-        Y = (int)std::floor(y) & 255,  // CONTAINS POINT.
-        Z = (int)std::floor(z) & 255;
+  static float Noise(float x, float y, float z) {
+    auto const X = static_cast<std::size_t>(std::floor(x)) & 255;
+    auto const Y = static_cast<std::size_t>(std::floor(y)) & 255;
+    auto const Z = static_cast<std::size_t>(std::floor(z)) & 255;
     x -= std::floor(x);  // FIND RELATIVE X,Y,Z
     y -= std::floor(y);  // OF POINT IN CUBE.
     z -= std::floor(z);
-    double u = Fade(x),  // COMPUTE FADE CURVES
-        v = Fade(y),     // FOR EACH OF X,Y,Z.
-        w = Fade(z);
-    int A = p[X] + Y, AA = p[A] + Z, AB = p[A + 1] + Z,  // HASH COORDINATES OF
-        B = p[X + 1] + Y, BA = p[B] + Z,
-        BB = p[B + 1] + Z;  // THE 8 CUBE CORNERS,
+    auto const u = Fade(x);
+    auto const v = Fade(y);
+    auto const w = Fade(z);
+    auto const A = p[X] + Y;
+    auto const AA = p[A] + Z;
+    auto const AB = p[A + 1] + Z;
+    auto const B = p[X + 1] + Y;
+    auto const BA = p[B] + Z;
+    auto const BB = p[B + 1] + Z;  // THE 8 CUBE CORNERS,
 
     return Lerp(w,
                 Lerp(v,

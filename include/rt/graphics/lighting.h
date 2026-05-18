@@ -23,10 +23,6 @@ inline ColourRGB Lighting(Material const& material, Intersectable const& shape,
 
   auto const ambient = effective_colour * material.ambient;
 
- /* if (in_shadow) {
-    return ambient;
-  }*/
-
   auto const light_dot_normal = Dot(light_vec, normal_vec);
   if (light_dot_normal <= 0.0f) {
     return ambient;
@@ -104,8 +100,9 @@ inline ColourRGB ShadeHit(World const& world, SurfaceInteraction const& surface,
   ColourRGB colour{0.0f, 0.0f, 0.0f};
 
   for (auto const& light : world.lights_) {
-    //auto const in_shade = IsShadowed(world, light, surface.over_point);
-    auto const attentuation = ShadowAttenuation(world, light, surface.over_point);
+    // auto const in_shade = IsShadowed(world, light, surface.over_point);
+    auto const attentuation =
+        ShadowAttenuation(world, light, surface.over_point);
     colour = colour + Lighting(surface.intersection.object->GetMaterial(),
                                *surface.intersection.object, light,
                                surface.over_point, surface.eye, surface.normal,
@@ -186,15 +183,16 @@ inline float Schlick(SurfaceInteraction const& surface) {
   if (surface.n1 > surface.n2) {
     auto const n = surface.n1 / surface.n2;
     auto const sin2_t = n * n * (1.0f - cos * cos);
-      if (sin2_t > 1.0f) {
-        return 1.0f;
-      }
+    if (sin2_t > 1.0f) {
+      return 1.0f;
+    }
 
     auto const cos_t = std::sqrt(1.0f - sin2_t);
     cos = cos_t;
   }
 
-  auto const r0 = std::pow((surface.n1 - surface.n2) / (surface.n1 + surface.n2), 2.0f);
+  auto const r0 =
+      std::pow((surface.n1 - surface.n2) / (surface.n1 + surface.n2), 2.0f);
   return r0 + (1.0f - r0) * std::pow(1.0f - cos, 5.0f);
 }
 }  // namespace rt

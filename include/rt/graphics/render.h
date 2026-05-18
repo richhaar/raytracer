@@ -10,7 +10,6 @@
 
 namespace rt {
 
-
 inline Canvas RenderWorld(Camera const& cam, World const& world) {
   constexpr int32_t spp_side = 2;
   constexpr int32_t samples_per_pixel = spp_side * spp_side;
@@ -30,7 +29,7 @@ inline Canvas RenderWorld(Camera const& cam, World const& world) {
           auto const v = (static_cast<float>(sy) + dist(rng)) / spp_side;
 
           auto const ray = RayForPixel(cam, static_cast<float>(x) + u,
-                                            static_cast<float>(y) + v);
+                                       static_cast<float>(y) + v);
           sum = sum + ColourAt(world, ray);
         }
       }

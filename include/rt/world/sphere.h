@@ -34,7 +34,8 @@ class Sphere : public NonCopyable, public Intersectable {
     return std::make_pair(Intersection{t1, this}, Intersection{t2, this});
   }
 
-  [[nodiscard]] Vector3 LocalNormalAt(Point3 const& object_point) const override {
+  [[nodiscard]] Vector3 LocalNormalAt(
+      Point3 const& object_point) const override {
     return object_point - Point3{0.0f, 0.0f, 0.0f};
   }
 

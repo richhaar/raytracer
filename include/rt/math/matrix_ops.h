@@ -67,13 +67,11 @@ Matrix<ARows, BCols> operator*(Matrix<ARows, ACols> lhs,
   return matrix;
 }
 
-
 template <std::size_t Rows, std::size_t Cols>
 bool Near(Matrix<Rows, Cols> const& lhs, Matrix<Rows, Cols> const& rhs,
           float const epsilon = 1e-6f) {
   return NormSquared(rhs - lhs) <= epsilon * epsilon;
 }
-
 
 }  // namespace rt
 #endif  // RAYTRACER_MATRIX_OPS_H

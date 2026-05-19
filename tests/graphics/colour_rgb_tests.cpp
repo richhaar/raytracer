@@ -45,7 +45,8 @@ TEST(ColourRGB, MultiplyingByScalarRHS) {
 }
 
 TEST(ColourRGB, MultiplyingByColour) {
-  auto const [r, g, b] = ColourRGB{1.0f, 1.0f, 1.0f} * ColourRGB{2.0f, 3.0f, 4.0f};
+  auto const [r, g, b] =
+      ColourRGB{1.0f, 1.0f, 1.0f} * ColourRGB{2.0f, 3.0f, 4.0f};
   ASSERT_FLOAT_EQ(r, 2.0f);
   ASSERT_FLOAT_EQ(g, 3.0f);
   ASSERT_FLOAT_EQ(b, 4.0f);

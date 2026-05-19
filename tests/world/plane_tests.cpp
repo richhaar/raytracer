@@ -25,7 +25,8 @@ TEST(Plane, NormalAtPoint) {
 
 TEST(Plane, ParallelRay) {
   auto const p = Plane();
-  auto constexpr ray = Ray{Point3{0.0f, 10.0f, 0.0f}, Vector3{0.0f, 0.0f, 1.0f}};
+  auto constexpr ray =
+      Ray{Point3{0.0f, 10.0f, 0.0f}, Vector3{0.0f, 0.0f, 1.0f}};
   auto const intersections = p.Hit(ray);
   ASSERT_FALSE(intersections);
 }
@@ -39,7 +40,8 @@ TEST(Plane, CoplanarRay) {
 
 TEST(Plane, RayIntersectFromAbove) {
   auto const p = Plane();
-  auto constexpr ray = Ray{Point3{0.0f, 1.0f, 0.0f}, Vector3{0.0f, -1.0f, 1.0f}};
+  auto constexpr ray =
+      Ray{Point3{0.0f, 1.0f, 0.0f}, Vector3{0.0f, -1.0f, 1.0f}};
   auto const intersections = p.Hit(ray);
   ASSERT_TRUE(intersections);
   ASSERT_FLOAT_EQ(intersections->first.t, 1.0f);
@@ -48,13 +50,13 @@ TEST(Plane, RayIntersectFromAbove) {
 
 TEST(Plane, RayIntersectFromBelow) {
   auto const p = Plane();
-  auto constexpr ray = Ray{Point3{0.0f, -1.0f, 0.0f}, Vector3{0.0f, 1.0f, 1.0f}};
+  auto constexpr ray =
+      Ray{Point3{0.0f, -1.0f, 0.0f}, Vector3{0.0f, 1.0f, 1.0f}};
   auto const intersections = p.Hit(ray);
   ASSERT_TRUE(intersections);
   ASSERT_FLOAT_EQ(intersections->first.t, 1.0f);
   ASSERT_EQ(&p, intersections->first.object);
 }
-
 
 }  // namespace
 

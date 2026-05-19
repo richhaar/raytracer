@@ -56,8 +56,7 @@ TEST(SurfaceInteraction, ReflectVector) {
 
 TEST(SurfaceInteraction, OverPoint) {
   auto constexpr ray =
-      Ray{Point3{0.0f, 0.0f, -5.0f},
-          Vector3{0.0f, 0.0f, 1.0f}};
+      Ray{Point3{0.0f, 0.0f, -5.0f}, Vector3{0.0f, 0.0f, 1.0f}};
 
   auto sphere = Sphere{};
   sphere.SetTransform(Translation(0.0f, 0.0f, 1.0f));
@@ -71,8 +70,7 @@ TEST(SurfaceInteraction, OverPoint) {
 
 TEST(SurfaceInteraction, UnderPoint) {
   auto constexpr ray =
-      Ray{Point3{0.0f, 0.0f, -5.0f},
-          Vector3{0.0f, 0.0f, 1.0f}};
+      Ray{Point3{0.0f, 0.0f, -5.0f}, Vector3{0.0f, 0.0f, 1.0f}};
 
   auto sphere = Sphere{};
   sphere.SetTransform(Translation(0.0f, 0.0f, 1.0f));
@@ -156,7 +154,6 @@ TEST_F(SurfaceInteractionRefractionTest, IntersectAt5point25) {
   EXPECT_FLOAT_EQ(surface.n1, 2.5f);
   EXPECT_FLOAT_EQ(surface.n2, 1.5f);
 }
-
 
 TEST_F(SurfaceInteractionRefractionTest, IntersectAt6) {
   auto const intersection = Intersection(6.0f, world_.objects_[0].get());

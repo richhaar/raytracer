@@ -145,7 +145,6 @@ TEST(Pattern, RingPattern) {
   ASSERT_EQ(b3, 0.0f);
 }
 
-
 TEST(Pattern, CheckerPatternX) {
   auto const gradient = CheckerPattern(ColourRGB::White(), ColourRGB::Black());
   auto const [r, g, b] = gradient.ColourAt(Point3{0.0f, 0.0f, 0.0f});

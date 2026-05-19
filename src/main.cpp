@@ -19,6 +19,8 @@
 int main() {
   std::size_t constexpr kWidth = 2000;
   std::size_t constexpr kHeight = 1000;
+  std::unique_ptr<rt::SampleStrategy> const aa_strategy =
+      std::make_unique<rt::X4AntiAliasing>();
 
   auto builder = rt::WorldBuilder();
   auto constexpr pi = std::numbers::pi_v<float>;
@@ -93,7 +95,7 @@ int main() {
 
   std::cout << "Starting render..." << std::endl;
   auto t0 = std::chrono::steady_clock::now();
-  auto const img = rt::RenderWorld(cam, world);
+  auto const img = rt::RenderWorld(cam, world, aa_strategy);
   auto t1 = std::chrono::steady_clock::now();
   auto const ms =
       std::chrono::duration_cast<std::chrono::milliseconds>(t1 - t0);

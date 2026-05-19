@@ -7,9 +7,8 @@
 #include <cassert>
 #include <cmath>
 #include <numeric>
-#include <stdexcept>
 #include <ostream>
-
+#include <stdexcept>
 
 #include "rt/math/concepts.h"
 

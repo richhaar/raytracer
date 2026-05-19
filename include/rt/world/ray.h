@@ -3,8 +3,8 @@
 #ifndef RAYTRACER_RAY_H
 #define RAYTRACER_RAY_H
 #include "rt/math/matrix.h"
-#include "rt/math/transforms.h"
 #include "rt/math/point3.h"
+#include "rt/math/transforms.h"
 #include "rt/math/vector3.h"
 
 namespace rt {

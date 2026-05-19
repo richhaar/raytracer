@@ -3,6 +3,8 @@
 #ifndef RAYTRACER_CONCEPTS_H
 #define RAYTRACER_CONCEPTS_H
 
+#include <cstddef>
+
 namespace rt {
 
 template <std::size_t Rows, std::size_t Cols>

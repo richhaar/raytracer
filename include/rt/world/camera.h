@@ -44,8 +44,8 @@ struct Camera {
 };
 
 inline Ray RayForPixel(Camera const& cam, float const x, float const y) {
-  auto const x_offset = (static_cast<float>(x) + 0.5f) * cam.pixel_size;
-  auto const y_offset = (static_cast<float>(y) + 0.5f) * cam.pixel_size;
+  auto const x_offset = x * cam.pixel_size;
+  auto const y_offset = y * cam.pixel_size;
 
   auto const world_x = cam.half_width - x_offset;
   auto const world_y = cam.half_height - y_offset;

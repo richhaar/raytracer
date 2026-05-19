@@ -11,7 +11,7 @@ void Pattern::SetTransform(Matrix<4, 4> const& m) {
   inverse_transform_ = Inverse(m);
 }
 ColourRGB Pattern::ColourAtShape(Intersectable const& shape,
-                                Point3 const& world_point) const {
+                                 Point3 const& world_point) const {
   auto const object_point = shape.GetInverseTransform() * world_point;
   auto const pattern_point = inverse_transform_ * object_point;
   return LocalColorAt(pattern_point);

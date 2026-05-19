@@ -2,6 +2,7 @@
 // Licensed under the MIT License
 #ifndef CANVAS_H
 #define CANVAS_H
+#include <stdexcept>
 #include <vector>
 
 #include "colour_rgb.h"

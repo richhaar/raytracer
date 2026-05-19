@@ -45,7 +45,8 @@ inline World DefaultWorld() {
   return builder
       .AddLight(PointLight(ColourRGB::White(), Point3(-10.0f, 10.0f, -10.0f)))
       .AddSphere(Matrix<4, 4>::Identity(),
-                 Material{.pattern = std::make_shared<SolidColour>(ColourRGB(0.8f, 1.0f, 0.6f)),
+                 Material{.pattern = std::make_shared<SolidColour>(
+                              ColourRGB(0.8f, 1.0f, 0.6f)),
                           .diffuse = 0.7f,
                           .specular = 0.2f})
       .AddSphere(Scaling(0.5f, 0.5f, 0.5f), Material{})

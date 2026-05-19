@@ -2,6 +2,8 @@
 // Licensed under the MIT License
 #ifndef RAYTRACER_SURFACE_INTERACTION_H
 #define RAYTRACER_SURFACE_INTERACTION_H
+#include <vector>
+
 #include "intersection.h"
 #include "ray.h"
 #include "rt/math/point3.h"
@@ -9,7 +11,7 @@
 
 namespace rt {
 // TODO: investigate needed offset for speckling, previously 2e-3f
-inline constexpr float kRaySurfaceOffset = 2e-3f;  // 2e-3f
+inline constexpr float kRaySurfaceOffset = 1e-5f;  // 2e-3f
 
 struct SurfaceInteraction {
   Intersection intersection;

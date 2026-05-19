@@ -20,8 +20,8 @@ class Intersectable {
   Matrix<4, 4> inverse_transform_{Matrix<4, 4>::Identity()};
   Material material_{};
 
-  [[nodiscard]] virtual std::optional<std::pair<Intersection, Intersection>> LocalHit(
-      Ray const& ray) const = 0;
+  [[nodiscard]] virtual std::optional<std::pair<Intersection, Intersection>>
+  LocalHit(Ray const& ray) const = 0;
 
   [[nodiscard]] virtual Vector3 LocalNormalAt(Point3 const& point) const = 0;
 

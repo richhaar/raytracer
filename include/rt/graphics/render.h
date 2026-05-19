@@ -50,7 +50,7 @@ class SampleStrategy {
 
 class NoAntiAliasing : public SampleStrategy {
   ColourRGB SampleImplementation(Camera const& cam, World const& world,
-                                         uint64_t const x, uint64_t y) override {
+                                 uint64_t const x, uint64_t y) override {
     auto const ray = RayForPixel(cam, static_cast<float>(x) + 0.5f,
                                  static_cast<float>(y) + 0.5f);
 

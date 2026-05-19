@@ -61,7 +61,7 @@ jobs:
 
       - name: Clang-tidy
         run: |
-          find src include \( -name '*.cpp' -o -name '*.h' \) -print0 | \
+          find src tests -name '*.cpp' -print0 | \
           xargs -0 clang-tidy --use-color --header-filter='.*' -p bin
 
   test:

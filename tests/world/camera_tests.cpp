@@ -38,7 +38,7 @@ TEST(Camera, RayForPixelCenter) {
   auto constexpr fov = std::numbers::pi_v<float> / 2.0f;
   auto const cam = Camera::Create(201, 101, fov);
 
-  auto const [origin, direction] = RayForPixel(cam, 100, 50);
+  auto const [origin, direction] = RayForPixel(cam, 100.5f, 50.5f);
   ASSERT_FLOAT_EQ(origin.x, 0.0f);
   ASSERT_FLOAT_EQ(origin.y, 0.0f);
   ASSERT_FLOAT_EQ(origin.z, 0.0f);
@@ -52,7 +52,7 @@ TEST(Camera, RayForPixelCorner) {
   auto constexpr fov = std::numbers::pi_v<float> / 2.0f;
   auto const cam = Camera::Create(201, 101, fov);
 
-  auto const [origin, direction] = RayForPixel(cam, 0, 0);
+  auto const [origin, direction] = RayForPixel(cam, 0.5f, 0.5f);
   ASSERT_FLOAT_EQ(origin.x, 0.0f);
   ASSERT_FLOAT_EQ(origin.y, 0.0f);
   ASSERT_FLOAT_EQ(origin.z, 0.0f);
@@ -68,7 +68,7 @@ TEST(Camera, RayForPixelTransformedCamera) {
                                   RotateY(std::numbers::pi_v<float> / 4.0f) *
                                       Translation(0.0f, -2.0f, 5.0f));
 
-  auto const [origin, direction] = RayForPixel(cam, 100, 50);
+  auto const [origin, direction] = RayForPixel(cam, 100.5f, 50.5f);
   ASSERT_FLOAT_EQ(origin.x, 0.0f);
   ASSERT_FLOAT_EQ(origin.y, 2.0f);
   ASSERT_FLOAT_EQ(origin.z, -5.0f);

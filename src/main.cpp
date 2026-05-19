@@ -16,7 +16,7 @@ int main() {
   auto const file_name = "world1.ppm";
 
   std::unique_ptr<rt::SampleStrategy> const aa_strategy =
-      std::make_unique<rt::X9AntiAliasing>();
+      std::make_unique<rt::X4AntiAliasing>();
 
   auto const world = rt::CreateWorld1();
 

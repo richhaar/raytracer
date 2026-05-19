@@ -270,7 +270,7 @@ TEST(Shearing, ShearZOnY) {
 
 TEST(Transforms, ChainedTransformations) {
   auto constexpr pos = Point3{1.0f, 0.0f, 1.0f};
-  auto constexpr A = RotateX(std::numbers::pi_v<float> / 2.0f);
+  auto const A = RotateX(std::numbers::pi_v<float> / 2.0f);
   auto constexpr B = Scaling(5.0f, 5.0f, 5.0f);
   auto constexpr C = Translation(10.0f, 5.0f, 7.0f);
   auto const [x, y, z] = C * B * A * pos;

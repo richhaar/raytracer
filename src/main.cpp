@@ -3,19 +3,12 @@
 #include <iostream>
 
 #include "rt/graphics/canvas.h"
-#include "rt/graphics/colour_rgb.h"
 #include "rt/graphics/ppm_writer.h"
 #include "rt/graphics/render.h"
-#include "rt/math/matrix_ops.h"
-#include "rt/math/point3.h"
-#include "rt/math/transforms.h"
 #include "rt/math/view_transform.h"
 #include "rt/scenes/world1.h"
 #include "rt/world/camera.h"
-#include "rt/world/point_light.h"
 #include "rt/world/ray.h"
-#include "rt/world/sphere.h"
-#include "rt/world/world_builder.h"
 
 int main() {
   std::size_t constexpr kWidth = 2000;

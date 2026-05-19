@@ -28,8 +28,8 @@ TEST(Point3, SubtractVectorFromPoint) {
 }
 
 TEST(Point3, Point3MinusPoint3GivesVector3) {
-  auto const vec = Point3{1.0, 2.0, 3.0} - Point3{4.0, 5.0, 6.0};
-  testing::StaticAssertTypeEq<decltype(vec), const Vector3>();
+  testing::StaticAssertTypeEq<
+      decltype(Point3{1.0, 2.0, 3.0} - Point3{4.0, 5.0, 6.0}), Vector3>();
 }
 
 }  // namespace

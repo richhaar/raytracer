@@ -486,9 +486,7 @@ TEST(Schlik, SmallAngleGreaterN2) {
   sphere.SetMaterial(Material{.transparency = 1.0f, .refractive_index = 1.5f});
 
   auto const ray = Ray{Point3{0.0f, 0.99f, -2.0f}, Vector3{0.0f, 0.0f, 1.0f}};
-  std::vector<Intersection> const intersections{
-        {1.8589f, &sphere}
-    };
+  std::vector<Intersection> const intersections{{1.8589f, &sphere}};
 
   auto const surface =
       ComputeSurfaceInteraction(intersections[0], ray, intersections);
@@ -509,7 +507,9 @@ TEST(ShadeHit, RefractedAndReflectiveColour) {
                               .specular = 0.2f})
           .AddSphere(Scaling(0.5f, 0.5f, 0.5f), Material{})
           .AddPlane(Translation(0.0f, -1.0f, 0.0f),
-                    Material{.reflective = 0.5f, .transparency = 0.5f, .refractive_index = 1.5f})
+                    Material{.reflective = 0.5f,
+                             .transparency = 0.5f,
+                             .refractive_index = 1.5f})
           .AddSphere(Translation(0.0f, -3.5f, -0.5f),
                      Material{.pattern = std::make_shared<SolidColour>(
                                   1.0f, 0.0f, 0.0f),
@@ -521,7 +521,7 @@ TEST(ShadeHit, RefractedAndReflectiveColour) {
           Vector3{0.0f, -std::sqrt(2.0f) / 2.0f, std::sqrt(2.0f) / 2.0f}};
 
   std::vector<Intersection> const intersections{
-        {std::sqrt(2.0f), world.objects_[2].get()}};
+      {std::sqrt(2.0f), world.objects_[2].get()}};
 
   auto const surface =
       ComputeSurfaceInteraction(intersections[0], ray, intersections);

@@ -58,9 +58,6 @@ inline float ShadowAttenuation(World const& world, PointLight const& light,
       continue;
     }
 
-    // TODO: update tests to accomodate shadow attentuation
-    return 0.0f;
-
     auto const& material = hit.object->GetMaterial();
 
     if (material.transparency <= 0.0f) {

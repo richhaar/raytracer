@@ -445,7 +445,7 @@ TEST(ShadeHit, RefractedColour) {
       ComputeSurfaceInteraction(intersections[0], ray, intersections);
   auto const [r, g, b] = ShadeHit(world, surface, 5);
 
-  EXPECT_NEAR(r, 0.93642f, 1e-5f);
+  EXPECT_NEAR(r, 1.03094f, 1e-5f);
   EXPECT_NEAR(g, 0.68642f, 1e-5f);
   EXPECT_NEAR(b, 0.68642f, 1e-5f);
 }
@@ -527,7 +527,7 @@ TEST(ShadeHit, RefractedAndReflectiveColour) {
       ComputeSurfaceInteraction(intersections[0], ray, intersections);
   auto const [r, g, b] = ShadeHit(world, surface, 5);
 
-  EXPECT_NEAR(r, 0.93391f, 1e-5f);
+  EXPECT_NEAR(r, 1.02446f, 1e-5f);
   EXPECT_NEAR(g, 0.69643f, 1e-5f);
   EXPECT_NEAR(b, 0.69243f, 1e-5f);
 }
